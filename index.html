@@ -39,7 +39,6 @@
         .mode-btn h2 { margin: 0 0 5px 0; font-size: 24px; color: #fff; }
         .mode-btn p { margin: 0; font-size: 14px; color: #bbb; }
         
-        /* RUSH MODE STYLING */
         .mode-btn.rush { border-color: #FF0055; background: rgba(255, 0, 85, 0.1); }
         .mode-btn.rush h2 { color: #FF0055; }
         .mode-btn.rush:hover { background: rgba(255, 0, 85, 0.2); }
@@ -47,7 +46,7 @@
         .action-btn { background: #fff; color: #FF0055; border: 3px solid #FF0055; padding: 18px 24px; border-radius: 30px; font-weight: 900; cursor: pointer; margin: 10px; width: 100%; max-width: 280px; font-size: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); transition: all 0.15s; }
         .action-btn:active { transform: scale(0.9); }
 
-        /* GAME BOARD WRAPPER */
+        /* GAME BOARD */
         #game-board { 
             position: relative; width: 100vw; height: 100dvh;
             display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 1; 
@@ -61,7 +60,6 @@
         
         #score-display { font-size: 36px; font-weight: 900; margin: 5px 0; color: #fff; text-shadow: 2px 2px 0px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.2); }
         
-        /* DEFAULT DESKTOP / LARGE SCREEN */
         #play-area {
             display: flex; flex-direction: row; align-items: stretch; justify-content: space-between; gap: 3vw;
             width: 100%; flex: 1; min-height: 0; padding: 0 3vw 3vw 3vw; box-sizing: border-box;
@@ -91,7 +89,7 @@
 
         .dock-title { color: rgba(255,255,255,0.4); font-size: 16px; font-weight: 900; letter-spacing: 4px; margin-bottom: 20px; text-align: center; width: 100%; border-bottom: 2px dashed rgba(255,255,255,0.1); padding-bottom: 10px; }
         
-        #reward-dock { display: none; flex-direction: column; align-items: center; gap: 15px; width: 100%; background: rgba(255, 215, 0, 0.15); border: 2px dashed rgba(255, 215, 0, 0.8); padding: 15px; border-radius: 16px; box-sizing: border-box; min-height: 80px; }
+        #reward-dock { display: none; flex-direction: column; align-items: center; gap: 15px; width: 100%; background: rgba(255, 215, 0, 0.15); border: 2px dashed rgba(255, 215, 0, 0.8); padding: 15px; border-radius: 16px; box-sizing: border-box; }
         #dock { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
         
         .shape-wrapper { position: relative; cursor: grab; padding: 10px; touch-action: none; transition: transform 0.2s, filter 0.3s, opacity 0.3s; }
@@ -102,10 +100,13 @@
         .shape-dot { width: 28px; height: 28px; margin: 1px; border-radius: 6px; border: 1px solid transparent; flex-shrink: 0; }
         .shape-dot.filled { border: 1px solid rgba(255,255,255,0.8); box-shadow: inset 2px 2px 5px rgba(255,255,255,0.8), 0 4px 8px rgba(0,0,0,0.2); pointer-events: auto; }
         
+        .reward-mini { transform: scale(1.2); }
+        .reward-badge { position: absolute; bottom: 0; right: 0; background: #FF0055; color: #fff; border: 2px solid #fff; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.4); pointer-events: none; }
+
         .floating { position: fixed; pointer-events: none; z-index: 9999; transform: scale(1.5); filter: drop-shadow(0 25px 20px rgba(0,0,0,0.4)); opacity: 0.95; transform-origin: top left; }
         .floating-score { position: fixed; z-index: 10000; pointer-events: none; font-size: 36px; font-weight: 900; color: #fff; text-align: center; -webkit-text-stroke: 1px rgba(0,0,0,0.1); animation: bounceUpAndFade 1.2s forwards; }
 
-        /* --- RESPONSIVE LAYOUTS --- */
+        /* RESPONSIVE LAYOUTS */
         @media (orientation: portrait) and (max-width: 1024px) {
             #score-display { font-size: 28px; }
             #play-area { flex-direction: column; align-items: center; justify-content: flex-start; gap: 10px; padding: 5px; }
@@ -240,25 +241,41 @@
         activePopups++; setTimeout(() => activePopups--, 1200); setTimeout(() => popup.remove(), 1200);
     }
 
+    function grantRewardPiece() {
+        rewardDockEl.style.display = "flex";
+        let existing = activeShapes.find(s => s && s.isReward);
+        if (existing) {
+            if (existing.count < 5) {
+                existing.count++;
+                let badge = existing.element.querySelector('.reward-badge');
+                if (badge) badge.innerText = existing.count;
+            }
+        } else {
+            const shapeObj = { layout: [[0,0]], color: "#ffffff", element: null, isReward: true, count: 1 };
+            activeShapes.push(shapeObj);
+            buildDraggableShape(shapeObj, rewardDockEl);
+            shapeObj.element.classList.add('reward-mini');
+            shapeObj.element.querySelector('.shape-dot').style.boxShadow = "0 0 15px rgba(255,255,255,0.8)";
+            
+            let badge = document.createElement("div");
+            badge.className = "reward-badge";
+            badge.innerText = shapeObj.count;
+            shapeObj.element.appendChild(badge);
+        }
+        verifyMovesLeft();
+    }
+
     function fillDock() {
         dockEl.innerHTML = "";
-        activeShapes = activeShapes.filter(s => s !== null && s.isReward); 
+        activeShapes = activeShapes.filter(s => s !== null && s.isReward && s.count > 0); 
         let newShapesToAdd = [];
         for (let i = 0; i < 3; i++) {
             let layout = layouts[Math.floor(Math.random() * layouts.length)];
-            const shapeObj = {layout: layout, color: candyColors[Math.floor(Math.random()*candyColors.length)], element: null, isReward: false};
+            const shapeObj = {layout: layout, color: candyColors[Math.floor(Math.random()*candyColors.length)], element: null, isReward: false, count: 1};
             newShapesToAdd.push(shapeObj);
         }
         newShapesToAdd.forEach(shapeObj => { activeShapes.push(shapeObj); buildDraggableShape(shapeObj, dockEl); });
         verifyMovesLeft();
-    }
-
-    // AWARDS A STASH BLOCK
-    function grantReward() {
-        rewardDockEl.style.display = "flex"; 
-        const rewardObj = {layout: [[0,0]], color: "#ffffff", element: null, isReward: true};
-        activeShapes.push(rewardObj);
-        buildDraggableShape(rewardObj, rewardDockEl);
     }
 
     function findSmartestSpot(shapeObj) {
@@ -277,11 +294,23 @@
     }
 
     function consumeShapeAndCheckState(shapeObj, wrap) {
-        let idx = activeShapes.indexOf(shapeObj); if (idx > -1) activeShapes[idx] = null; wrap.remove();
-        
-        // Hide stash if empty
-        if (rewardDockEl.children.length === 0) rewardDockEl.style.display = "none";
-
+        let idx = activeShapes.indexOf(shapeObj); 
+        if (idx > -1) {
+            if (shapeObj.isReward) {
+                shapeObj.count--;
+                if (shapeObj.count <= 0) {
+                    activeShapes[idx] = null; 
+                    wrap.remove();
+                    rewardDockEl.style.display = "none";
+                } else {
+                    let badge = wrap.querySelector('.reward-badge');
+                    if(badge) badge.innerText = shapeObj.count;
+                }
+            } else {
+                activeShapes[idx] = null; 
+                wrap.remove();
+            }
+        }
         if (!activeShapes.some(s => s && !s.isReward)) fillDock(); else verifyMovesLeft();
         if (currentMode === 'rush') { timeRemaining = 10.0; }
     }
@@ -310,7 +339,6 @@
                 let isOn = shapeObj.layout.some(pt => pt[0]===r && pt[1]===c);
                 dot.className = isOn ? "shape-dot filled" : "shape-dot blank";
                 if(isOn) { dot.style.background = shapeObj.color; dot.dataset.r = r; dot.dataset.c = c; }
-                if(shapeObj.isReward && isOn) { dot.style.boxShadow = "0 0 10px #fff"; } // Glowing stash block
                 rDiv.appendChild(dot);
             }
             gridBox.appendChild(rDiv);
@@ -336,7 +364,6 @@
             const move = (ev) => {
                 let dx = ev.clientX - startX; let dy = ev.clientY - startY;
 
-                // Smart swipe detection
                 if (!isSwipingDown && dy > 30 && Math.abs(dx) < 20 && (Date.now() - startTime) < 400) {
                     isSwipingDown = true;
                     window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", drop);
@@ -348,10 +375,11 @@
 
                 let newX = ev.clientX - originX;
                 let newY = ev.clientY - originY;
+                
                 newX = Math.max(0, Math.min(newX, window.innerWidth - ghost.offsetWidth));
                 newY = Math.max(0, Math.min(newY, window.innerHeight - ghost.offsetHeight));
-                ghost.style.left = newX + "px"; ghost.style.top = newY + "px"; 
 
+                ghost.style.left = newX + "px"; ghost.style.top = newY + "px"; 
                 wipeHints();
                 const targetPos = getBestDropPos(shapeObj, ev.clientX, ev.clientY, false);
                 if (targetPos) drawHint(shapeObj.layout, targetPos.r, targetPos.c);
@@ -389,7 +417,7 @@
 
     function lockInShape(shapeObj, startR, startC) {
         snapSound.currentTime = 0; 
-        snapSound.play().catch(e => console.log("Audio not active yet"));
+        snapSound.play().catch(e => console.log("User must interact with page before audio plays."));
         if (navigator.vibrate) { navigator.vibrate(50); }
 
         shapeObj.layout.forEach(pt => {
@@ -414,10 +442,10 @@
             let pts = totalLines * 1000; currentScore += pts; scoreText.innerText = currentScore;
             spawnFloatingText("+" + pts, playGrid);
 
-            // GRANT A STASH BLOCK FOR COMBOS!
+            // GRANT A REWARD PIECE FOR COMBOS (2+ lines cleared at once)
             if (totalLines >= 2) {
-                setTimeout(() => spawnFloatingText("COMBO! +1 STASH", playGrid, true), 400);
-                grantReward();
+                grantRewardPiece();
+                spawnFloatingText("COMBO REWARD!", rewardDockEl, true);
             }
 
             let toClear = new Set();
@@ -458,11 +486,13 @@
         boardState.fill(null); currentScore = 0; scoreText.innerText = currentScore;
         Array.from(playGrid.children).forEach(c => { c.classList.remove("active"); c.style.background = "rgba(0,0,0,0.35)"; c.style.boxShadow = "inset 0 2px 5px rgba(0,0,0,0.6)"; });
         
-        // Reset stash on game over
-        rewardDockEl.innerHTML = "";
-        rewardDockEl.style.display = "none";
+        activeShapes = []; 
+        rewardDockEl.innerHTML = ""; rewardDockEl.style.display = "none"; // Clear out the stash
         
-        activeShapes = []; fillDock(); gameActive = true; 
+        fillDock(); 
+        grantRewardPiece(); // Start the game with exactly 1 reserve block!
+        
+        gameActive = true; 
         if (currentMode === 'rush') { timeRemaining = 10.0; lastTime = 0; rushTimer = requestAnimationFrame(gameLoop); }
     }
 
