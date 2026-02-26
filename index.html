@@ -59,6 +59,21 @@
         .timer-danger { color: #FF0055 !important; animation: pulseRed 0.5s infinite alternate; }
         .bg-danger { background: #FF0055 !important; }
 
+        /* CENTERED SCORE STYLES */
+        #score-display { 
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 120px; 
+            font-weight: 900; 
+            margin: 0; 
+            color: rgba(255, 255, 255, 0.2); 
+            pointer-events: none; 
+            z-index: 5;
+            transition: transform 0.1s; 
+        }
+        
         /* FULL-SCREEN PLAY AREA */
         #play-area {
             display: flex; flex-direction: row; align-items: stretch; justify-content: space-between; gap: 3vw;
@@ -66,27 +81,12 @@
         }
 
         #play-grid { 
-            position: relative; /* CRITICAL for centering the score */
+            position: relative; /* CRITICAL for absolute score placement */
             display: flex; flex-wrap: wrap; align-content: flex-start;
             width: 600px; height: 600px; max-width: 55vw; max-height: 55vw;
             background: rgba(0, 0, 0, 0.45); padding: 12px; border-radius: 24px; box-sizing: border-box; 
             justify-content: center; border: 2px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); flex-shrink: 0;
             margin: auto 0;
-        }
-
-        /* --- CENTERED SCORE --- */
-        #score-display { 
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 140px; 
-            font-weight: 900; 
-            margin: 0; 
-            color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
-            pointer-events: none; /* Let blocks drag right through it */
-            z-index: 5;
-            text-shadow: 2px 2px 0px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.2);
         }
         
         .block-cell { 
@@ -143,10 +143,8 @@
         #records-list li { display: flex; justify-content: space-between; border-bottom: 2px dashed rgba(0,0,0,0.1); padding: 10px 0; }
 
         /* --- RESPONSIVE ORIENTATION (iPAD / iPHONE) --- */
-
-        /* PORTRAIT MODE (Upright) */
         @media (orientation: portrait) {
-            #score-display { font-size: 80px; } /* Mobile centered score font size */
+            #score-display { font-size: 80px; }
             #play-area { flex-direction: column; align-items: center; justify-content: flex-start; gap: 10px; padding: 5px; }
             #play-grid { order: 1; width: 96vw; height: 96vw; max-width: 600px; max-height: 600px; padding: 6px; border-radius: 16px; }
             .side-dock-wrapper { order: 2; flex: none; width: 96vw; max-width: 600px; min-height: auto; padding: 10px; }
@@ -157,8 +155,8 @@
             .reserve-area { order: 0; }
         }
 
-        /* LANDSCAPE MODE (Sideways) */
         @media (orientation: landscape) {
+            #score-display { font-size: 100px; }
             #timer-container { position: absolute; top: 10px; right: 20px; width: 150px; z-index: 10;}
             #play-area { flex-direction: row; align-items: center; justify-content: center; gap: 2vw; padding: 10px; height: 100%; }
             #play-grid { width: 85vh; height: 85vh; max-width: 600px; max-height: 600px; padding: 8px; margin: 0; }
@@ -239,7 +237,7 @@
 
     const candyColors = ["#FF0055", "#FF8800", "#FFEA00", "#00FF66", "#00DDFF", "#BD00FF", "#FF00AA"];
     
-    // Setup Grid Cells
+    // Create Board Cells (Leaving the score display intact)
     for (let i = 0; i < 100; i++) {
         const cell = document.createElement("div");
         cell.className = "block-cell";
@@ -255,15 +253,14 @@
         [[0,0], [1,1], [2,2]], [[0,0], [0,1], [0,2]]
     ];
 
-    const hypeWords = ["Nice!", "Awesome!", "Epic!", "Superb!", "Boom!"];
-
     window.startGame = function(mode) {
-        currentMode = mode; continuesLeft = 3; 
+        currentMode = mode; continuesLeft = 3; gameActive = true;
         document.getElementById("start-screen").style.display = "none";
         document.getElementById("end-screen").style.display = "none";
         document.getElementById("game-board").style.display = "flex";
         timerContainer.style.display = currentMode === 'rush' ? "flex" : "none";
         wipeBoardClean();
+        if (currentMode === 'rush') { timeRemaining = 10.0; lastTime = 0; rushTimer = requestAnimationFrame(gameLoop); }
     };
 
     function gameLoop(timestamp) {
@@ -537,12 +534,11 @@
     }
 
     function locateGridIndex(x, y) {
+        // We start at index 1 because index 0 is the #score-display!
         const tiles = playGrid.children;
-        // Check standard 100 tiles (skipping the score element that is at the end)
-        for (let i = 0; i < 100; i++) {
-            if(!tiles[i].classList.contains('block-cell')) continue;
+        for (let i = 1; i <= 100; i++) {
             const b = tiles[i].getBoundingClientRect();
-            if (x >= b.left && x <= b.right && y >= b.top && y <= b.bottom) return i;
+            if (x >= b.left && x <= b.right && y >= b.top && y <= b.bottom) return i - 1;
         }
         return null;
     }
@@ -557,23 +553,39 @@
         return layout.every(pt => { let r = startR+pt[0], c = startC+pt[1]; return r>=0 && r<10 && c>=0 && c<10 && boardState[r*10+c] === null; });
     }
 
+    function drawHint(layout, startR, startC) {
+        layout.forEach(pt => {
+            // Add 1 to offset for the score display
+            let i = (startR + pt[0]) * 10 + (startC + pt[1]) + 1; 
+            if (playGrid.children[i]) playGrid.children[i].classList.add('snap-hint');
+        });
+    }
+
+    function wipeHints() {
+        Array.from(playGrid.children).forEach(child => child.classList.remove('snap-hint'));
+    }
+
     function lockInShape(shapeObj, startR, startC) {
         snapSound.currentTime = 0; 
         snapSound.play().catch(e => console.log("User interaction required for audio."));
         if (navigator.vibrate) { navigator.vibrate(50); }
 
         shapeObj.layout.forEach(pt => {
-            let i = (startR+pt[0])*10 + (startC+pt[1]);
-            boardState[i] = shapeObj.color; 
-            playGrid.children[i].classList.add("active");
-            playGrid.children[i].style.background = shapeObj.color;
-            playGrid.children[i].style.boxShadow = `inset 2px 2px 8px rgba(255,255,255,0.7), inset -2px -2px 8px rgba(0,0,0,0.1), 0 2px 5px rgba(0,0,0,0.1)`;
+            let stateIndex = (startR+pt[0])*10 + (startC+pt[1]);
+            let domIndex = stateIndex + 1; // +1 offset for score tag
+            
+            boardState[stateIndex] = shapeObj.color; 
+            playGrid.children[domIndex].classList.add("active");
+            playGrid.children[domIndex].style.background = shapeObj.color;
+            playGrid.children[domIndex].style.boxShadow = `inset 2px 2px 8px rgba(255,255,255,0.7), inset -2px -2px 8px rgba(0,0,0,0.1), 0 2px 5px rgba(0,0,0,0.1)`;
         });
         currentScore += shapeObj.layout.length * 10; scoreText.innerText = currentScore;
         checkClears(shapeObj.isReward);
     }
 
-    // --- FINISHED CHECK CLEARS WITH POPUPS ---
+    // --- HYPE POPUPS & LINE CLEARING MAGIC HAPPENS HERE ---
+    const hypeWords = ["Nice!", "Awesome!", "Epic!", "Superb!", "Boom!", "Wow!"];
+
     function checkClears(isRewardBlock) {
         let fullRows = [], fullCols = [], diags = [];
         for(let r=0; r<10; r++) { if ([...Array(10)].every((_,c) => boardState[r*10+c])) fullRows.push(r); }
@@ -587,7 +599,7 @@
             gameBoard.classList.remove("shake"); void gameBoard.offsetWidth; gameBoard.classList.add("shake");
             let pts = totalLines * 1000; currentScore += pts; scoreText.innerText = currentScore;
             
-            // Trigger Hype Popups!
+            // Trigger Random Popup Words
             if (totalLines >= 10) {
                 spawnFloatingText("ZXYlevel!", playGrid, true);
             } else {
@@ -595,128 +607,112 @@
                 spawnFloatingText(randomWord, playGrid, true);
             }
             
-            // Actually clear the board blocks
+            // Delete the blocks!
             let toClear = new Set();
             fullRows.forEach(r => { for(let c=0; c<10; c++) toClear.add(r*10+c); });
             fullCols.forEach(c => { for(let r=0; r<10; r++) toClear.add(r*10+c); });
             if (diags.includes('diag1')) { for(let i=0; i<10; i++) toClear.add(i*10+i); }
             if (diags.includes('diag2')) { for(let i=0; i<10; i++) toClear.add(i*10+(9-i)); }
 
-            toClear.forEach(index => {
-                boardState[index] = null;
-                playGrid.children[index].classList.remove("active");
-                playGrid.children[index].style.background = "rgba(0, 0, 0, 0.35)";
-                playGrid.children[index].style.boxShadow = "none";
-                playGrid.children[index].style.border = "1px solid rgba(255, 255, 255, 0.05)";
+            toClear.forEach(idx => {
+                boardState[idx] = null;
+                let domIndex = idx + 1; // offset for score text
+                playGrid.children[domIndex].classList.remove("active");
+                playGrid.children[domIndex].style.background = "rgba(0, 0, 0, 0.35)";
+                playGrid.children[domIndex].style.boxShadow = "none";
             });
             
-            // Check if we should grant a reward
-            if (fullRows.length > 0 || fullCols.length > 0) {
+            // Reward system triggers if multiple lines clear
+            if (totalLines >= 2) {
                 grantCustomReward(fullRows, fullCols);
             }
         }
     }
 
-    // --- RECONSTRUCTED MISSING FUNCTIONS BELOW ---
-
+    // --- FINISHED MISSING GAME LOGIC ---
     function wipeBoardClean() {
-        gameActive = true;
         boardState.fill(null);
         currentScore = 0;
         scoreText.innerText = currentScore;
-        activeShapes = [];
         
-        // Reset grid visuals
-        for (let i = 0; i < 100; i++) {
-            playGrid.children[i].classList.remove("active", "snap-hint");
+        // Skip index 0 because that's the score display now!
+        for (let i = 1; i <= 100; i++) {
+            playGrid.children[i].classList.remove("active");
             playGrid.children[i].style.background = "rgba(0, 0, 0, 0.35)";
             playGrid.children[i].style.boxShadow = "none";
-            playGrid.children[i].style.border = "1px solid rgba(255, 255, 255, 0.05)";
         }
-        
+        activeShapes = [];
         rewardDockEl.innerHTML = "";
         rewardDockEl.style.display = "none";
         document.querySelector('.reserve-area').style.display = 'none';
-        
         fillDock();
-        if (currentMode === 'rush') {
-            timeRemaining = 10.0;
-            lastTime = 0;
-            rushTimer = requestAnimationFrame(gameLoop);
-        }
     }
 
     function verifyMovesLeft() {
-        if (!gameActive) return;
-        let canMove = activeShapes.some(shapeObj => {
-            if (!shapeObj) return false;
+        let hasMoves = activeShapes.some(shapeObj => {
+            if (!shapeObj || shapeObj.count <= 0) return false;
             return findAllValidSpots(shapeObj.layout).length > 0;
         });
-        if (!canMove) {
+
+        if (!hasMoves && activeShapes.some(s => s !== null)) {
             triggerGameOver("NO MOVES LEFT!");
         }
     }
 
-    function drawHint(layout, startR, startC) {
-        layout.forEach(pt => {
-            let r = startR + pt[0];
-            let c = startC + pt[1];
-            if (r >= 0 && r < 10 && c >= 0 && c < 10) {
-                playGrid.children[r * 10 + c].classList.add("snap-hint");
-            }
-        });
-    }
-
-    function wipeHints() {
-        for (let i = 0; i < 100; i++) {
-            if (playGrid.children[i].classList) {
-                playGrid.children[i].classList.remove("snap-hint");
-            }
-        }
-    }
-
-    function triggerGameOver(reason) {
+    function triggerGameOver(reasonText) {
         gameActive = false;
-        cancelAnimationFrame(rushTimer);
-        document.getElementById("death-reason").innerText = reason;
+        if (rushTimer) cancelAnimationFrame(rushTimer);
+        
+        document.getElementById("death-reason").innerText = reasonText;
         document.getElementById("final-tally").innerText = currentScore;
+        
+        const btnContinue = document.getElementById("btn-continue");
+        if (continuesLeft > 0) {
+            btnContinue.style.display = "inline-block";
+            btnContinue.innerText = `CONTINUE (${continuesLeft} LEFT)`;
+        } else {
+            btnContinue.style.display = "none";
+        }
         
         // Update records
         bestScores.push(currentScore);
-        bestScores.sort((a, b) => b - a);
+        bestScores.sort((a,b) => b-a);
         bestScores = bestScores.slice(0, 5);
         
-        const list = document.getElementById("records-list");
-        list.innerHTML = "";
-        bestScores.forEach((score, idx) => {
-            if (score > 0) list.innerHTML += `<li><span>#${idx+1}</span> <span>${score}</span></li>`;
+        const listEl = document.getElementById("records-list");
+        listEl.innerHTML = "";
+        bestScores.forEach((score, i) => {
+            if(score > 0) {
+                let li = document.createElement("li");
+                li.innerHTML = `<span>#${i+1}</span><span>${score}</span>`;
+                listEl.appendChild(li);
+            }
         });
-        
-        const continueBtn = document.getElementById("btn-continue");
-        if (continuesLeft > 0) {
-            continueBtn.innerText = `CONTINUE (${continuesLeft} LEFT)`;
-            continueBtn.style.display = "block";
-        } else {
-            continueBtn.style.display = "none";
-        }
-        
+
         document.getElementById("end-screen").style.display = "flex";
     }
 
     window.useContinue = function() {
-        if (continuesLeft > 0) {
-            continuesLeft--;
-            document.getElementById("end-screen").style.display = "none";
-            gameActive = true;
-            fillDock(true); // Fill with mini pieces to help escape
-            if (currentMode === 'rush') {
-                timeRemaining = 10.0;
-                lastTime = 0;
-                rushTimer = requestAnimationFrame(gameLoop);
+        if (continuesLeft <= 0) return;
+        continuesLeft--;
+        document.getElementById("end-screen").style.display = "none";
+        
+        // Clear bottom 5 rows to give the player breathing room
+        for (let r=5; r<10; r++) {
+            for(let c=0; c<10; c++) {
+                let idx = r*10+c;
+                boardState[idx] = null;
+                let domIndex = idx + 1; 
+                playGrid.children[domIndex].classList.remove("active");
+                playGrid.children[domIndex].style.background = "rgba(0, 0, 0, 0.35)";
+                playGrid.children[domIndex].style.boxShadow = "none";
             }
         }
+        
+        gameActive = true;
+        fillDock(true); // Give them smaller pieces to recover
+        if (currentMode === 'rush') { timeRemaining = 10.0; lastTime = 0; rushTimer = requestAnimationFrame(gameLoop); }
     }
-
 </script>
 </body>
 </html>
