@@ -18,11 +18,10 @@
             color: #333; margin: 0; 
             height: 100dvh; 
             width: 100vw; overflow: hidden; 
-            touch-action: none; /* Stops iOS gestures */
+            touch-action: none; 
             user-select: none; -webkit-user-select: none;
         }
 
-        /* UI SCREENS */
         #start-screen, #end-screen {
             position: fixed; inset: 0; z-index: 99999;
             background: rgba(10, 15, 30, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -39,7 +38,6 @@
         .mode-btn h2 { margin: 0 0 5px 0; font-size: 24px; color: #fff; }
         .mode-btn p { margin: 0; font-size: 14px; color: #bbb; }
         
-        /* RUSH MODE STYLING */
         .mode-btn.rush { border-color: #FF0055; background: rgba(255, 0, 85, 0.1); }
         .mode-btn.rush h2 { color: #FF0055; }
         .mode-btn.rush:hover { background: rgba(255, 0, 85, 0.2); }
@@ -47,7 +45,6 @@
         .action-btn { background: #fff; color: #FF0055; border: 3px solid #FF0055; padding: 18px 24px; border-radius: 30px; font-weight: 900; cursor: pointer; margin: 10px; width: 100%; max-width: 280px; font-size: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); transition: all 0.15s; }
         .action-btn:active { transform: scale(0.9); }
 
-        /* GAME BOARD WRAPPER */
         #game-board { 
             position: relative; width: 100vw; height: 100dvh;
             display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 1; 
@@ -57,12 +54,10 @@
         #timer-container { width: 600px; max-width: 90vw; display: none; flex-direction: column; align-items: center; margin-top: 10px; }
         #timer-display { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         #timer-bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.6); border-radius: 6px; overflow: hidden; border: 2px solid rgba(255,255,255,0.3); }
-        /* GLOWING RED TIMER BAR */
         #timer-bar-fill { width: 100%; height: 100%; background: #FF0055; box-shadow: 0 0 15px #FF0055; }
         
         #score-display { font-size: 36px; font-weight: 900; margin: 5px 0; color: #fff; text-shadow: 2px 2px 0px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.2); }
         
-        /* DEFAULT DESKTOP / LARGE SCREEN */
         #play-area {
             display: flex; flex-direction: row; align-items: stretch; justify-content: space-between; gap: 3vw;
             width: 100%; flex: 1; min-height: 0; padding: 0 3vw 3vw 3vw; box-sizing: border-box;
@@ -83,7 +78,6 @@
         .block-cell.active { border: none; z-index: 2; position: relative; }
         .block-cell.snap-hint { animation: glowPulse 0.4s infinite alternate; border-radius: 6px; border: 2px solid #fff; transform: scale(1.05); z-index: 10; }
 
-        /* DOCKS */
         .side-dock-wrapper {
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             background: rgba(0,0,0,0.3); box-shadow: inset 0 10px 30px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.2);
@@ -102,16 +96,10 @@
         
         .shape-dot { width: 28px; height: 28px; margin: 1px; border-radius: 6px; border: 1px solid transparent; flex-shrink: 0; }
         .shape-dot.filled { border: 1px solid rgba(255,255,255,0.8); box-shadow: inset 2px 2px 5px rgba(255,255,255,0.8), 0 4px 8px rgba(0,0,0,0.2); pointer-events: auto; }
-        
-        .reward-mini .shape-dot { width: 16px; height: 16px; margin: 1px; border-radius: 4px; }
-        .reward-badge { position: absolute; bottom: 0; right: 0; background: #FF0055; color: #fff; border: 2px solid #fff; border-radius: 50%; width: 24px; height: 24px; font-size: 13px; font-weight: 900; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.4); pointer-events: none; }
 
         .floating { position: fixed; pointer-events: none; z-index: 9999; transform: scale(1.5); filter: drop-shadow(0 25px 20px rgba(0,0,0,0.4)); opacity: 0.95; transform-origin: top left; }
         .floating-score { position: fixed; z-index: 10000; pointer-events: none; font-size: 36px; font-weight: 900; color: #fff; text-align: center; -webkit-text-stroke: 1px rgba(0,0,0,0.1); animation: bounceUpAndFade 1.2s forwards; }
 
-        /* --- RESPONSIVE LAYOUTS --- */
-        
-        /* PORTRAIT MODE (iPhone/iPad Upright) */
         @media (orientation: portrait) and (max-width: 1024px) {
             #score-display { font-size: 28px; }
             #play-area { flex-direction: column; align-items: center; justify-content: flex-start; gap: 10px; padding: 5px; }
@@ -124,7 +112,6 @@
             .shape-wrapper { padding: 5px; }
         }
 
-        /* LANDSCAPE MODE (iPhone/iPad Sideways) */
         @media (orientation: landscape) and (max-height: 800px) {
             #score-display { font-size: 24px; position: absolute; top: 10px; left: 20px; z-index: 10;}
             #timer-container { position: absolute; top: 10px; right: 20px; width: 150px; z-index: 10;}
@@ -176,7 +163,6 @@
 </div>
 
 <script>
-    // STOP iOS PULL-TO-REFRESH GLOBALLY
     document.addEventListener('touchmove', function(e) {
         if (e.target.closest('body')) { e.preventDefault(); }
     }, { passive: false });
@@ -190,7 +176,6 @@
     const timerBarFill = document.getElementById("timer-bar-fill");
     const gameBoard = document.getElementById("game-board");
     
-    // --- AUDIO SYSTEM ---
     const snapSound = new Audio('snap.mp3'); 
 
     let boardState = Array(100).fill(null);
@@ -251,15 +236,23 @@
 
     function fillDock() {
         dockEl.innerHTML = "";
-        activeShapes = activeShapes.filter(s => s !== null && s.isReward && s.count > 0); 
+        activeShapes = activeShapes.filter(s => s !== null && s.isReward); 
         let newShapesToAdd = [];
         for (let i = 0; i < 3; i++) {
             let layout = layouts[Math.floor(Math.random() * layouts.length)];
-            const shapeObj = {layout: layout, color: candyColors[Math.floor(Math.random()*candyColors.length)], element: null, isReward: false, count: 1};
+            const shapeObj = {layout: layout, color: candyColors[Math.floor(Math.random()*candyColors.length)], element: null, isReward: false};
             newShapesToAdd.push(shapeObj);
         }
         newShapesToAdd.forEach(shapeObj => { activeShapes.push(shapeObj); buildDraggableShape(shapeObj, dockEl); });
         verifyMovesLeft();
+    }
+
+    // NEW FUNCTION: Awards a 1x1 block to the stash
+    function awardSmartBlock() {
+        rewardDockEl.style.display = "flex";
+        const shapeObj = {layout: [[0,0]], color: "#ffffff", element: null, isReward: true};
+        activeShapes.push(shapeObj);
+        buildDraggableShape(shapeObj, rewardDockEl);
     }
 
     function findSmartestSpot(shapeObj) {
@@ -279,6 +272,12 @@
 
     function consumeShapeAndCheckState(shapeObj, wrap) {
         let idx = activeShapes.indexOf(shapeObj); if (idx > -1) activeShapes[idx] = null; wrap.remove();
+        
+        // Hide reward dock if empty
+        if (shapeObj.isReward) {
+            if (!activeShapes.some(s => s && s.isReward)) rewardDockEl.style.display = "none";
+        }
+
         if (!activeShapes.some(s => s && !s.isReward)) fillDock(); else verifyMovesLeft();
         if (currentMode === 'rush') { timeRemaining = 10.0; }
     }
@@ -332,7 +331,6 @@
             const move = (ev) => {
                 let dx = ev.clientX - startX; let dy = ev.clientY - startY;
 
-                // Smart swipe detection
                 if (!isSwipingDown && dy > 30 && Math.abs(dx) < 20 && (Date.now() - startTime) < 400) {
                     isSwipingDown = true;
                     window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", drop);
@@ -342,10 +340,7 @@
                     wipeHints(); ghost.remove(); return;
                 }
 
-                // DRAG CLAMPING LOGIC
-                let newX = ev.clientX - originX;
-                let newY = ev.clientY - originY;
-                
+                let newX = ev.clientX - originX; let newY = ev.clientY - originY;
                 newX = Math.max(0, Math.min(newX, window.innerWidth - ghost.offsetWidth));
                 newY = Math.max(0, Math.min(newY, window.innerHeight - ghost.offsetHeight));
 
@@ -386,7 +381,6 @@
     }
 
     function lockInShape(shapeObj, startR, startC) {
-        // PLAY SOUND AND HAPTICS
         snapSound.currentTime = 0; 
         snapSound.play().catch(e => console.log("User must interact with page before audio plays."));
         if (navigator.vibrate) { navigator.vibrate(50); }
@@ -412,6 +406,12 @@
             gameBoard.classList.remove("shake"); void gameBoard.offsetWidth; gameBoard.classList.add("shake");
             let pts = totalLines * 1000; currentScore += pts; scoreText.innerText = currentScore;
             spawnFloatingText("+" + pts, playGrid);
+
+            // Give a Reserve Stash block for multi-line combos!
+            if (totalLines >= 2) {
+                spawnFloatingText("COMBO REWARD!", playGrid, true);
+                awardSmartBlock();
+            }
 
             let toClear = new Set();
             fullRows.forEach(r => { for(let c=0; c<10; c++) toClear.add(r*10+c); });
@@ -450,7 +450,7 @@
     function wipeBoardClean() {
         boardState.fill(null); currentScore = 0; scoreText.innerText = currentScore;
         Array.from(playGrid.children).forEach(c => { c.classList.remove("active"); c.style.background = "rgba(0,0,0,0.35)"; c.style.boxShadow = "inset 0 2px 5px rgba(0,0,0,0.6)"; });
-        activeShapes = []; fillDock(); gameActive = true; 
+        activeShapes = []; rewardDockEl.style.display = "none"; fillDock(); gameActive = true; 
         if (currentMode === 'rush') { timeRemaining = 10.0; lastTime = 0; rushTimer = requestAnimationFrame(gameLoop); }
     }
 
