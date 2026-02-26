@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ZXYpuzzle - Switch Edition</title>
+    <title>ZXYpuzzle - Ultimate Smart Edition</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
@@ -9,6 +9,7 @@
         @keyframes jellyBounce { 0%, 100% { transform: scale(1); } 25% { transform: scale(1.05) translateY(-5px); } 50% { transform: scale(0.95) translateY(5px); } 75% { transform: scale(1.02) translateY(-2px); } }
         @keyframes bounceUpAndFade { 0% { transform: translateY(0) scale(0.2); opacity: 1; } 40% { transform: translateY(-50px) scale(1.3); opacity: 1; } 70% { transform: translateY(-40px) scale(1.1); opacity: 1; } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }
         @keyframes glowPulse { from { background: rgba(255, 255, 255, 0.5); box-shadow: 0 0 10px rgba(255,255,255,0.3); } to { background: rgba(255, 255, 255, 0.95); box-shadow: 0 0 20px rgba(255,255,255,0.8); } }
+        @keyframes pulseRed { from { transform: scale(1); text-shadow: 0 0 10px #FF0055; } to { transform: scale(1.1); text-shadow: 0 0 20px #FF0055, 0 0 30px #FF0055; } }
 
         body { 
             font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; 
@@ -16,8 +17,9 @@
             background: linear-gradient(45deg, #FF0055, #00DDFF, #FFEA00, #00FF66, #BD00FF);
             background-size: 400% 400%; animation: rainbowSwirl 15s ease infinite;
             color: #333; margin: 0; 
-            height: 100dvh; width: 100vw; overflow: hidden; 
-            touch-action: none; /* Stops iOS gestures */
+            height: 100dvh; 
+            width: 100vw; overflow: hidden; 
+            touch-action: none; 
             user-select: none; -webkit-user-select: none;
         }
 
@@ -35,9 +37,11 @@
         
         .mode-btn { background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 25px; margin: 10px; width: 100%; max-width: 350px; cursor: pointer; transition: all 0.2s ease; text-align: left; }
         .mode-btn:hover { background: rgba(255, 255, 255, 0.15); border-color: #00DDFF; transform: translateY(-3px); }
+        .mode-btn.rush:hover { border-color: #FF0055; }
         .mode-btn h2 { margin: 0 0 5px 0; font-size: 24px; color: #fff; }
         .mode-btn p { margin: 0; font-size: 14px; color: #bbb; }
-        
+        .mode-btn.rush h2 { color: #FF0055; text-shadow: 0 0 10px rgba(255,0,85,0.4); }
+
         .action-btn { background: #fff; color: #FF0055; border: 3px solid #FF0055; padding: 18px 24px; border-radius: 30px; font-weight: 900; cursor: pointer; margin: 10px; width: 100%; max-width: 280px; font-size: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); transition: all 0.15s; }
         .action-btn:active { transform: scale(0.9); }
 
@@ -52,12 +56,14 @@
         #timer-display { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         #timer-bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.6); border-radius: 6px; overflow: hidden; border: 2px solid rgba(255,255,255,0.3); }
         #timer-bar-fill { width: 100%; height: 100%; background: #00FF66; }
+        .timer-danger { color: #FF0055 !important; animation: pulseRed 0.5s infinite alternate; }
+        .bg-danger { background: #FF0055 !important; }
+
+        #score-display { font-size: 36px; font-weight: 900; margin: 5px 0; color: #fff; text-shadow: 2px 2px 0px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.2); transition: transform 0.1s; }
         
-        #score-display { font-size: 36px; font-weight: 900; margin: 5px 0; color: #fff; text-shadow: 2px 2px 0px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.2); }
-        
-        /* PLAY AREA */
+        /* FULL-SCREEN PLAY AREA */
         #play-area {
-            display: flex; flex-direction: row; align-items: stretch; justify-content: center; gap: 3vw;
+            display: flex; flex-direction: row; align-items: stretch; justify-content: space-between; gap: 3vw;
             width: 100%; flex: 1; min-height: 0; padding: 0 3vw 3vw 3vw; box-sizing: border-box;
         }
 
@@ -76,40 +82,65 @@
         .block-cell.active { border: none; z-index: 2; position: relative; }
         .block-cell.snap-hint { animation: glowPulse 0.4s infinite alternate; border-radius: 6px; border: 2px solid #fff; transform: scale(1.05); z-index: 10; }
 
-        /* ACTIVE DOCK */
+        /* DOCKS */
         .side-dock-wrapper {
-            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            flex: 1; 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             background: rgba(0,0,0,0.3); box-shadow: inset 0 10px 30px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.2);
-            border-radius: 24px; padding: 20px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.05); overflow-y: auto; max-width: 350px;
+            border-radius: 24px; padding: 20px; box-sizing: border-box;
+            border: 1px solid rgba(255,255,255,0.05); overflow-y: auto;
         }
 
-        .dock-title { color: rgba(255,255,255,0.4); font-size: 16px; font-weight: 900; letter-spacing: 4px; margin-bottom: 20px; text-align: center; width: 100%; border-bottom: 2px dashed rgba(255,255,255,0.1); padding-bottom: 10px; }
-        
-        #dock { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
+        .dock-title {
+            color: rgba(255,255,255,0.4); font-size: 16px; font-weight: 900; letter-spacing: 4px; 
+            margin-bottom: 20px; text-align: center; width: 100%; border-bottom: 2px dashed rgba(255,255,255,0.1); padding-bottom: 10px;
+        }
+
+        #reward-dock { 
+            display: none; flex-direction: column; align-items: center; gap: 15px; width: 100%;
+            background: rgba(255, 215, 0, 0.15); border: 2px dashed rgba(255, 215, 0, 0.8); 
+            padding: 15px; border-radius: 16px; box-sizing: border-box;
+        }
+
+        #dock {
+            display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%;
+        }
         
         .shape-wrapper { position: relative; cursor: grab; padding: 10px; touch-action: none; transition: transform 0.2s, filter 0.3s, opacity 0.3s; }
         .shape-wrapper:active { transform: scale(1.15); }
         .shape-layout { display: flex; flex-direction: column; align-items: center; pointer-events: none; }
         .shape-row { display: flex; }
         
-        .shape-dot { width: 28px; height: 28px; margin: 1px; border-radius: 6px; border: 1px solid transparent; flex-shrink: 0; }
+        .shape-dot { 
+            width: 28px; height: 28px; 
+            margin: 1px; border-radius: 6px; border: 1px solid transparent; flex-shrink: 0; 
+        }
         .shape-dot.filled { border: 1px solid rgba(255,255,255,0.8); box-shadow: inset 2px 2px 5px rgba(255,255,255,0.8), 0 4px 8px rgba(0,0,0,0.2); pointer-events: auto; }
         
+        .reward-mini .shape-dot { width: 16px; height: 16px; margin: 1px; border-radius: 4px; }
+        .reward-badge { position: absolute; bottom: 0; right: 0; background: #FF0055; color: #fff; border: 2px solid #fff; border-radius: 50%; width: 24px; height: 24px; font-size: 13px; font-weight: 900; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.4); pointer-events: none; }
+
         .floating { position: fixed; pointer-events: none; z-index: 9999; transform: scale(1.5); filter: drop-shadow(0 25px 20px rgba(0,0,0,0.4)); opacity: 0.95; transform-origin: top left; }
         .floating-score { position: fixed; z-index: 10000; pointer-events: none; font-size: 36px; font-weight: 900; color: #fff; text-align: center; -webkit-text-stroke: 1px rgba(0,0,0,0.1); animation: bounceUpAndFade 1.2s forwards; }
 
-        /* --- RESPONSIVE LAYOUTS (iPad / iPhone) --- */
-        
+        #records { background: #fff; padding: 20px; border-radius: 20px; margin: 15px 0; width: 100%; max-width: 350px; border: 2px solid rgba(0,0,0,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        #records h3 { margin: 0 0 15px 0; font-size: 22px; color: #BD00FF; }
+        #records-list { list-style: none; padding: 0; margin: 0; font-size: 18px; font-weight: bold; color: #555; text-align: left; }
+        #records-list li { display: flex; justify-content: space-between; border-bottom: 2px dashed rgba(0,0,0,0.1); padding: 10px 0; }
+
+        /* --- RESPONSIVE ORIENTATION (iPAD / iPHONE) --- */
+
         /* PORTRAIT MODE (Upright) */
         @media (orientation: portrait) {
             #score-display { font-size: 28px; }
             #play-area { flex-direction: column; align-items: center; justify-content: flex-start; gap: 10px; padding: 5px; }
             #play-grid { order: 1; width: 96vw; height: 96vw; max-width: 600px; max-height: 600px; padding: 6px; border-radius: 16px; }
-            .side-dock-wrapper { order: 2; flex: none; width: 96vw; max-width: 600px; min-height: auto; padding: 10px; flex-direction: column; }
+            .side-dock-wrapper { order: 2; flex: none; width: 96vw; max-width: 600px; min-height: auto; padding: 10px; }
             .dock-title { margin-bottom: 10px; padding-bottom: 5px; font-size: 14px; }
-            #dock { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 15px; }
-            .shape-dot { width: min(6.5vw, 32px); height: min(6.5vw, 32px); }
+            #dock, #reward-dock { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px; }
+            .shape-dot { width: min(6.5vw, 24px); height: min(6.5vw, 24px); }
             .shape-wrapper { padding: 5px; }
+            .reserve-area { order: 0; } /* Puts the stash at the top if it appears */
         }
 
         /* LANDSCAPE MODE (Sideways) */
@@ -127,7 +158,7 @@
 
 <div id="start-screen">
     <h1>ZXYpuzzle</h1>
-    <p class="subtitle">Switch Edition</p>
+    <p class="subtitle">Ultimate Smart Edition</p>
     <div class="mode-btn classic" onclick="startGame('classic')">
         <h2>CLASSIC MODE</h2><p>Take your time. Build massive combos.</p>
     </div>
@@ -141,6 +172,11 @@
     <div id="score-display">0</div>
     
     <div id="play-area">
+        <div class="side-dock-wrapper reserve-area" style="display: none;">
+            <div class="dock-title">RESERVE STASH</div>
+            <div id="reward-dock"></div>
+        </div>
+        
         <div id="play-grid"></div>
         
         <div class="side-dock-wrapper active-area">
@@ -154,8 +190,10 @@
     <h1 style="color:#FF0055; font-size: 50px; margin-bottom: 5px;">OH NO!</h1>
     <p id="death-reason" style="color:#FF8800; font-weight:bold; font-size: 18px; margin: 0;"></p>
     <p style="margin-top: 10px; font-size: 20px; font-weight: bold;">SCORE: <br><span id="final-tally" style="color: #BD00FF; font-size: 42px;">0</span></p>
-    <button id="btn-continue" class="action-btn" onclick="useContinue()" style="background:#00FF66; color:#333; border-color:#00FF66;">CONTINUE</button>
+    <div id="records"><h3>TOP SCORES</h3><ul id="records-list"></ul></div>
+    <button id="btn-continue" class="action-btn" onclick="useContinue()" style="background:#00FF66; color:#333; border-color:#00FF66;">CONTINUE (3 LEFT)</button>
     <button class="action-btn" onclick="startGame(currentMode)" style="background:#FFEA00; color:#333; border-color:#FFEA00;">START OVER</button>
+    <button class="action-btn" onclick="location.reload()" style="background:#00DDFF; color:#fff; border-color:#00DDFF;">MAIN MENU</button>
 </div>
 
 <script>
@@ -166,6 +204,7 @@
 
     const playGrid = document.getElementById("play-grid");
     const dockEl = document.getElementById("dock");
+    const rewardDockEl = document.getElementById("reward-dock");
     const scoreText = document.getElementById("score-display");
     const timerContainer = document.getElementById("timer-container");
     const timerDisplay = document.getElementById("timer-display");
@@ -173,9 +212,9 @@
     const gameBoard = document.getElementById("game-board");
     
     // --- NINTENDO SWITCH SOUND ---
-    // Make sure you upload a sound file named "switch-snap.mp3" to your GitHub!
-    const snapSound = new Audio('switch-snap.mp3'); 
-
+    // Requires an audio file named "switch-snap.mp3" in the same folder as this HTML file!
+    const snapSound = new Audio('switch-snap.mp3');
+    
     let boardState = Array(100).fill(null);
     let currentScore = 0;
     let activeShapes = []; 
@@ -183,11 +222,14 @@
     let continuesLeft = 3; 
     let currentMode = 'classic';
     let rushTimer; let timeRemaining = 10.0; let gameActive = false; let lastTime = 0;
+    let bestScores = [0, 0, 0, 0, 0];
 
     const candyColors = ["#FF0055", "#FF8800", "#FFEA00", "#00FF66", "#00DDFF", "#BD00FF", "#FF00AA"];
     
     for (let i = 0; i < 100; i++) {
-        const cell = document.createElement("div"); cell.className = "block-cell"; playGrid.appendChild(cell);
+        const cell = document.createElement("div");
+        cell.className = "block-cell";
+        playGrid.appendChild(cell);
     }
 
     const layouts = [
@@ -217,51 +259,176 @@
         else {
             timerDisplay.innerText = timeRemaining.toFixed(1) + "s";
             timerBarFill.style.width = (timeRemaining * 10) + "%";
+            if (timeRemaining <= 3) { timerDisplay.classList.add("timer-danger"); timerBarFill.classList.add("bg-danger"); } 
+            else { timerDisplay.classList.remove("timer-danger"); timerBarFill.classList.remove("bg-danger"); }
             rushTimer = requestAnimationFrame(gameLoop);
         }
     }
 
-    function spawnFloatingText(text, targetEl) {
+    function spawnFloatingText(text, targetEl, isSpecial = false) {
         const popup = document.createElement("div");
-        popup.className = "floating-score"; popup.innerHTML = text; 
-        popup.style.color = candyColors[Math.floor(Math.random() * candyColors.length)];
+        popup.className = "floating-score";
+        popup.innerHTML = text; 
+        if(isSpecial) {
+            popup.style.color = "#FFEA00";
+            popup.style.textShadow = "0 0 20px #FF0055, 0 0 40px #FF0055";
+            popup.style.fontSize = "50px";
+            popup.style.zIndex = "10001";
+        } else {
+            popup.style.color = candyColors[Math.floor(Math.random() * candyColors.length)];
+        }
+        
         const rect = targetEl.getBoundingClientRect();
-        popup.style.left = (rect.left + rect.width / 2 - 40) + "px";
+        popup.style.left = (rect.left + rect.width / 2 - (isSpecial ? 80 : 40)) + "px";
         popup.style.top = (rect.top + rect.height / 2 - (activePopups * 35)) + "px";
         document.body.appendChild(popup);
         activePopups++; setTimeout(() => activePopups--, 1200); setTimeout(() => popup.remove(), 1200);
     }
 
-    function fillDock() {
+    function fillDock(forceMini = false) {
         dockEl.innerHTML = "";
-        activeShapes = [];
+        activeShapes = activeShapes.filter(s => s !== null && s.isReward && s.count > 0); 
+        const miniLayouts = [[[0,0]], [[0,0],[0,1]], [[0,0],[1,0]]];
+        const currentPool = forceMini ? miniLayouts : layouts;
+
+        let playablePool = currentPool.filter(layout => findAllValidSpots(layout).length > 0);
+        let newShapesToAdd = [];
+
         for (let i = 0; i < 3; i++) {
-            let layout = layouts[Math.floor(Math.random() * layouts.length)];
-            const shapeObj = {layout: layout, color: candyColors[Math.floor(Math.random()*candyColors.length)], element: null};
-            activeShapes.push(shapeObj);
-            buildDraggableShape(shapeObj, dockEl);
+            let layout;
+            if (i === 0 && playablePool.length > 0) {
+                layout = playablePool[Math.floor(Math.random() * playablePool.length)];
+            } else {
+                layout = currentPool[Math.floor(Math.random() * currentPool.length)];
+            }
+            const shapeObj = {layout: layout, color: candyColors[Math.floor(Math.random()*candyColors.length)], element: null, isReward: false, count: 1};
+            newShapesToAdd.push(shapeObj);
         }
+
+        newShapesToAdd.sort(() => Math.random() - 0.5); 
+        newShapesToAdd.forEach(shapeObj => { activeShapes.push(shapeObj); buildDraggableShape(shapeObj, dockEl); });
         verifyMovesLeft();
     }
 
-    function consumeShapeAndCheckState(shapeObj, wrap) {
-        let idx = activeShapes.indexOf(shapeObj); if (idx > -1) activeShapes[idx] = null; wrap.remove();
-        if (!activeShapes.some(s => s !== null)) fillDock(); else verifyMovesLeft();
-        if (currentMode === 'rush') { timeRemaining = 10.0; }
+    function grantCustomReward(rowsCleared, colsCleared) {
+        let rawLayout = [];
+        let seen = new Set();
+        rowsCleared.forEach(r => { for(let c=0; c<10; c++) { let k = r+","+c; if(!seen.has(k)) { seen.add(k); rawLayout.push([r,c]); } } });
+        colsCleared.forEach(c => { for(let r=0; r<10; r++) { let k = r+","+c; if(!seen.has(k)) { seen.add(k); rawLayout.push([r,c]); } } });
+        
+        if (rawLayout.length === 0) return;
+
+        let minR = Math.min(...rawLayout.map(p=>p[0]));
+        let minC = Math.min(...rawLayout.map(p=>p[1]));
+        let normalizedLayout = rawLayout.map(p => [p[0]-minR, p[1]-minC]);
+        
+        let typeId = `combo_r${rowsCleared.join('')}_c${colsCleared.join('')}`;
+        let existing = activeShapes.find(s => s && s.isReward && s.typeId === typeId);
+
+        spawnFloatingText("FUSION BLOCK!", rewardDockEl);
+        rewardDockEl.style.display = "flex";
+        document.querySelector('.reserve-area').style.display = 'flex';
+
+        if (existing) {
+            existing.count++;
+            if (existing.badgeElement) existing.badgeElement.innerText = existing.count;
+            verifyMovesLeft(); return;
+        }
+
+        const shapeObj = {layout: normalizedLayout, color: "#00FF66", element: null, isReward: true, typeId: typeId, count: 1};
+        activeShapes.push(shapeObj); buildDraggableShape(shapeObj, rewardDockEl);
+        verifyMovesLeft();
     }
 
-    function getBestDropPos(shapeObj, clientX, clientY) {
+    // Heuristic algorithm for smart dropping
+    function findSmartestSpot(shapeObj) {
+        let bestSpot = null;
+        let maxScore = -Infinity;
+        const validSpots = findAllValidSpots(shapeObj.layout);
+
+        for (let spot of validSpots) {
+            let score = 0;
+            
+            // 1. Check if placing here clears any lines (massive points)
+            shapeObj.layout.forEach(pt => { boardState[(spot.r+pt[0])*10 + (spot.c+pt[1])] = 'temp'; });
+            
+            let lines = 0;
+            for(let r=0; r<10; r++) if ([...Array(10)].every((_,c) => boardState[r*10+c])) lines++;
+            for(let c=0; c<10; c++) if ([...Array(10)].every((_,r) => boardState[r*10+c])) lines++;
+            if ([...Array(10)].every((_,i) => boardState[i*10+i])) lines++;
+            if ([...Array(10)].every((_,i) => boardState[i*10+(9-i)])) lines++;
+            score += lines * 1000;
+
+            // 2. Check for snugness (touching walls or existing blocks prevents gaps)
+            shapeObj.layout.forEach(pt => {
+                let r = spot.r + pt[0]; let c = spot.c + pt[1];
+                if (r === 0 || (boardState[(r-1)*10+c] && boardState[(r-1)*10+c] !== 'temp')) score += 1;
+                if (r === 9 || (boardState[(r+1)*10+c] && boardState[(r+1)*10+c] !== 'temp')) score += 1;
+                if (c === 0 || (boardState[r*10+(c-1)] && boardState[r*10+(c-1)] !== 'temp')) score += 1;
+                if (c === 9 || (boardState[r*10+(c+1)] && boardState[r*10+(c+1)] !== 'temp')) score += 1;
+            });
+
+            shapeObj.layout.forEach(pt => { boardState[(spot.r+pt[0])*10 + (spot.c+pt[1])] = null; });
+
+            if (score > maxScore) { maxScore = score; bestSpot = spot; }
+        }
+        return bestSpot;
+    }
+
+    function consumeShapeAndCheckState(shapeObj, wrap) {
+        if (shapeObj.isReward) {
+            shapeObj.count--;
+            if (shapeObj.count > 0) { shapeObj.badgeElement.innerText = shapeObj.count; wrap.style.opacity = "1"; } 
+            else { let idx = activeShapes.indexOf(shapeObj); if (idx > -1) activeShapes[idx] = null; wrap.remove(); }
+        } else {
+            let idx = activeShapes.indexOf(shapeObj); if (idx > -1) activeShapes[idx] = null; wrap.remove();
+        }
+
+        if (!activeShapes.some(s => s && s.isReward && s.count > 0)) {
+            rewardDockEl.style.display = "none";
+            document.querySelector('.reserve-area').style.display = 'none';
+        }
+        if (!activeShapes.some(s => s && !s.isReward)) fillDock(); else verifyMovesLeft();
+        if (currentMode === 'rush') { timeRemaining = 10.0; lastTime = 0; rushTimer = requestAnimationFrame(gameLoop); }
+    }
+
+    function getBestDropPos(shapeObj, clientX, clientY, isDrop) {
         const hoverPos = locateGridIndex(clientX, clientY);
+        const validSpots = findAllValidSpots(shapeObj.layout);
+        if (validSpots.length === 0) return null;
+
+        if (shapeObj.isReward && hoverPos !== null) {
+            let r = Math.floor(hoverPos/10), c = hoverPos%10;
+            if (shapeObj.typeId && shapeObj.typeId.startsWith('combo')) { 
+                if(hasRoom(shapeObj.layout, r - shapeObj.dragOffsetR, c - shapeObj.dragOffsetC)) 
+                    return {r: r - shapeObj.dragOffsetR, c: c - shapeObj.dragOffsetC}; 
+            }
+        }
+
         if (hoverPos !== null) {
             const r = Math.floor(hoverPos/10) - shapeObj.dragOffsetR;
             const c = (hoverPos%10) - shapeObj.dragOffsetC;
             if (hasRoom(shapeObj.layout, r, c)) return {r, c};
         }
+
+        if (isDrop || validSpots.length === 1) {
+            let minD = Infinity; let bestSpot = null;
+            const gridRect = playGrid.getBoundingClientRect();
+            const cellW = gridRect.width / 10;
+            
+            for (let spot of validSpots) {
+                let spotX = gridRect.left + (spot.c * cellW) + (shapeObj.layout[0][1] * cellW);
+                let spotY = gridRect.top + (spot.r * cellW) + (shapeObj.layout[0][0] * cellW);
+                let dist = Math.hypot(clientX - spotX, clientY - spotY);
+                if (dist < minD) { minD = dist; bestSpot = spot; }
+            }
+            if (bestSpot && (minD < gridRect.width * 1.5)) return bestSpot; 
+        }
         return null;
     }
 
     function buildDraggableShape(shapeObj, containerEl) {
-        const wrap = document.createElement("div"); wrap.className = "shape-wrapper";
+        const wrap = document.createElement("div"); wrap.className = "shape-wrapper" + (shapeObj.isReward ? " reward-mini" : "");
         shapeObj.element = wrap;
         
         const gridBox = document.createElement("div"); gridBox.className = "shape-layout";
@@ -279,42 +446,79 @@
             gridBox.appendChild(rDiv);
         }
         wrap.appendChild(gridBox);
+
+        if (shapeObj.isReward) {
+            const badge = document.createElement("div"); badge.className = "reward-badge"; badge.innerText = shapeObj.count;
+            wrap.appendChild(badge); shapeObj.badgeElement = badge;
+        }
         containerEl.appendChild(wrap);
 
         wrap.onpointerdown = (e) => {
             if (!gameActive) return;
             e.preventDefault(); 
-            let startX = e.clientX; let startY = e.clientY;
+            
+            let startX = e.clientX; 
+            let startY = e.clientY;
+            let startTime = Date.now();
+            let isSwipingDown = false;
+
             let grabR = shapeObj.layout[0][0], grabC = shapeObj.layout[0][1];
             if (e.target.classList.contains('filled')) { grabR = parseInt(e.target.dataset.r); grabC = parseInt(e.target.dataset.c); }
             shapeObj.dragOffsetR = grabR; shapeObj.dragOffsetC = grabC; 
 
-            const ghost = wrap.cloneNode(true); ghost.classList.add("floating"); document.body.appendChild(ghost); wrap.style.opacity = "0.05";
+            const ghost = wrap.cloneNode(true); ghost.classList.remove("reward-mini"); ghost.classList.add("floating");
+            const ghostBadge = ghost.querySelector('.reward-badge'); if (ghostBadge) ghostBadge.remove();
+            document.body.appendChild(ghost); wrap.style.opacity = "0.05";
             
-            const dotSize = window.innerWidth <= 768 ? Math.min(window.innerWidth * 0.065, 32) : 28; 
-            const scale = 1.5;
+            const dotSize = 28; const scale = 1.5;
             const originX = (10 + grabC * dotSize + dotSize/2) * scale;
             const originY = (10 + grabR * dotSize + dotSize/2) * scale;
 
             const move = (ev) => {
-                // --- BOUNDARY CLAMPING: Pieces cannot be dragged off screen ---
+                let dx = ev.clientX - startX;
+                let dy = ev.clientY - startY;
+
+                // --- SMART SWIPE-DOWN DETECTION ---
+                if (!isSwipingDown && dy > 30 && Math.abs(dx) < 20 && (Date.now() - startTime) < 400) {
+                    isSwipingDown = true;
+                    window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", drop);
+                    
+                    let bestSpot = findSmartestSpot(shapeObj);
+                    if (bestSpot) {
+                        lockInShape(shapeObj, bestSpot.r, bestSpot.c);
+                        consumeShapeAndCheckState(shapeObj, wrap);
+                    } else {
+                        wrap.style.opacity = "1";
+                    }
+                    wipeHints(); ghost.remove();
+                    return;
+                }
+
+                // --- BOUNDARY CLAMPING: Pieces cannot leave the screen ---
                 let newX = ev.clientX - originX;
                 let newY = ev.clientY - originY;
                 
                 newX = Math.max(0, Math.min(newX, window.innerWidth - ghost.offsetWidth));
                 newY = Math.max(0, Math.min(newY, window.innerHeight - ghost.offsetHeight));
 
-                ghost.style.left = newX + "px"; ghost.style.top = newY + "px"; 
+                ghost.style.left = newX + "px"; 
+                ghost.style.top = newY + "px"; 
+                
                 wipeHints();
-                const targetPos = getBestDropPos(shapeObj, ev.clientX, ev.clientY);
+                const targetPos = getBestDropPos(shapeObj, ev.clientX, ev.clientY, false);
                 if (targetPos) drawHint(shapeObj.layout, targetPos.r, targetPos.c);
             };
 
             const drop = (ev) => {
                 window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", drop);
-                const targetPos = getBestDropPos(shapeObj, ev.clientX, ev.clientY);
-                if (targetPos) { lockInShape(shapeObj, targetPos.r, targetPos.c); consumeShapeAndCheckState(shapeObj, wrap); } 
-                else { wrap.style.opacity = "1"; }
+                const targetPos = getBestDropPos(shapeObj, ev.clientX, ev.clientY, true);
+
+                if (targetPos) {
+                    lockInShape(shapeObj, targetPos.r, targetPos.c);
+                    consumeShapeAndCheckState(shapeObj, wrap);
+                } else { 
+                    wrap.style.opacity = "1"; 
+                }
                 wipeHints(); ghost.remove(); verifyMovesLeft(); 
             };
             window.addEventListener("pointermove", move); window.addEventListener("pointerup", drop);
@@ -341,10 +545,10 @@
     }
 
     function lockInShape(shapeObj, startR, startC) {
-        // --- HAPTICS & SOUND ENGINE ---
+        // --- SOUND & HAPTICS ENGINE ---
         snapSound.currentTime = 0; 
         snapSound.play().catch(e => console.log("User interaction required for audio."));
-        if (navigator.vibrate) { navigator.vibrate(50); } // Haptic Feedback Trigger
+        if (navigator.vibrate) { navigator.vibrate(50); }
 
         shapeObj.layout.forEach(pt => {
             let i = (startR+pt[0])*10 + (startC+pt[1]);
@@ -354,34 +558,49 @@
             playGrid.children[i].style.boxShadow = `inset 2px 2px 8px rgba(255,255,255,0.7), inset -2px -2px 8px rgba(0,0,0,0.1), 0 2px 5px rgba(0,0,0,0.1)`;
         });
         currentScore += shapeObj.layout.length * 10; scoreText.innerText = currentScore;
-        checkClears();
+        checkClears(shapeObj.isReward);
     }
 
-    function checkClears() {
-        let fullRows = [], fullCols = [];
+    function checkClears(isRewardBlock) {
+        let fullRows = [], fullCols = [], diags = [];
         for(let r=0; r<10; r++) { if ([...Array(10)].every((_,c) => boardState[r*10+c])) fullRows.push(r); }
         for(let c=0; c<10; c++) { if ([...Array(10)].every((_,r) => boardState[r*10+c])) fullCols.push(c); }
+        if ([...Array(10)].every((_,i) => boardState[i*10+i])) diags.push('diag1');
+        if ([...Array(10)].every((_,i) => boardState[i*10+(9-i)])) diags.push('diag2');
 
-        const totalLines = fullRows.length + fullCols.length;
+        const totalLines = fullRows.length + fullCols.length + diags.length;
+        
         if (totalLines > 0) {
             gameBoard.classList.remove("shake"); void gameBoard.offsetWidth; gameBoard.classList.add("shake");
             let pts = totalLines * 1000; currentScore += pts; scoreText.innerText = currentScore;
-            spawnFloatingText("+" + pts, playGrid);
-
+            
+            if (totalLines >= 10) {
+                spawnFloatingText("ZXYlevel!", playGrid, true);
+            }
+            
+            // Actually process the clears (Completing the truncated code)
             let toClear = new Set();
             fullRows.forEach(r => { for(let c=0; c<10; c++) toClear.add(r*10+c); });
             fullCols.forEach(c => { for(let r=0; r<10; r++) toClear.add(r*10+c); });
+            if (diags.includes('diag1')) { for(let i=0; i<10; i++) toClear.add(i*10+i); }
+            if (diags.includes('diag2')) { for(let i=0; i<10; i++) toClear.add(i*10+(9-i)); }
 
             toClear.forEach(idx => {
-                boardState[idx] = null; playGrid.children[idx].classList.remove("active");
-                playGrid.children[idx].style.background = "rgba(0, 0, 0, 0.35)"; playGrid.children[idx].style.boxShadow = "inset 0 2px 5px rgba(0,0,0,0.6)";
+                boardState[idx] = null; 
+                playGrid.children[idx].classList.remove("active");
+                playGrid.children[idx].style.background = "rgba(0, 0, 0, 0.35)"; 
+                playGrid.children[idx].style.boxShadow = "inset 0 2px 5px rgba(0,0,0,0.6)";
             });
+
+            if (!isRewardBlock && (fullRows.length > 0 || fullCols.length > 0)) {
+                grantCustomReward(fullRows, fullCols);
+            }
         }
     }
 
     function verifyMovesLeft() {
         let canPlay = activeShapes.some(s => s && findAllValidSpots(s.layout).length > 0);
-        activeShapes.forEach(s => { if(s) s.element.style.opacity = findAllValidSpots(s.layout).length > 0 ? "1" : "0.3"; });
+        activeShapes.forEach(s => { if(s && s.element) s.element.style.opacity = findAllValidSpots(s.layout).length > 0 ? "1" : "0.3"; });
         if (!canPlay && activeShapes.some(s=>s)) triggerGameOver("NO MOVES LEFT! 💀");
     }
 
@@ -389,8 +608,23 @@
         gameActive = false; cancelAnimationFrame(rushTimer);
         document.getElementById("death-reason").innerText = reasonText;
         document.getElementById("final-tally").innerText = currentScore;
+        
         const btn = document.getElementById("btn-continue");
-        if(continuesLeft > 0) { btn.style.display = "inline-block"; } else btn.style.display = "none";
+        
+        // Update the high score board
+        bestScores.push(currentScore);
+        bestScores.sort((a,b)=>b-a);
+        bestScores = bestScores.slice(0,5);
+        const rl = document.getElementById("records-list");
+        rl.innerHTML = "";
+        bestScores.forEach((s,i) => { if(s>0) rl.innerHTML += `<li><span>#${i+1}</span><span>${s}</span></li>`; });
+
+        if(continuesLeft > 0) { 
+            btn.style.display = "inline-block"; 
+            btn.innerText = `CONTINUE (${continuesLeft} LEFT)`; 
+        } else {
+            btn.style.display = "none";
+        }
         setTimeout(() => document.getElementById("end-screen").style.display = "flex", 800);
     }
 
@@ -406,12 +640,11 @@
         boardState.fill(null); currentScore = 0; scoreText.innerText = currentScore;
         Array.from(playGrid.children).forEach(c => { c.classList.remove("active"); c.style.background = "rgba(0,0,0,0.35)"; c.style.boxShadow = "inset 0 2px 5px rgba(0,0,0,0.6)"; });
         activeShapes = []; fillDock(); gameActive = true; 
+        rewardDockEl.style.display = "none"; document.querySelector('.reserve-area').style.display = 'none';
         if (currentMode === 'rush') { timeRemaining = 10.0; lastTime = 0; rushTimer = requestAnimationFrame(gameLoop); }
     }
 
-    function drawHint(layout, startR, startC) {
-        layout.forEach(pt => { let r=startR+pt[0], c=startC+pt[1]; if(r>=0&&r<10&&c>=0&&c<10) playGrid.children[r*10+c].classList.add("snap-hint"); });
-    }
+    function drawHint(layout, startR, startC) { layout.forEach(pt => { let r=startR+pt[0], c=startC+pt[1]; if(r>=0&&r<10&&c>=0&&c<10) playGrid.children[r*10+c].classList.add("snap-hint"); }); }
     function wipeHints() { for (let t of playGrid.children) t.classList.remove("snap-hint"); }
 </script>
 </body>
