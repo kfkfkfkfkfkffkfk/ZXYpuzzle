@@ -7,7 +7,7 @@
     <style>
         @keyframes rainbowSwirl { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         @keyframes jellyBounce { 0%, 100% { transform: scale(1); } 25% { transform: scale(1.05) translateY(-5px); } 50% { transform: scale(0.95) translateY(5px); } 75% { transform: scale(1.02) translateY(-2px); } }
-        @keyframes bounceUpAndFade { 0% { transform: translateY(0) scale(0.2); opacity: 1; } 40% { transform: translateY(-50px) scale(1.3); opacity: 1; } 70% { transform: translateY(-40px) scale(1.1); opacity: 1; } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }
+        @keyframes bounceUpAndFade { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { transform: translateY(-20px) scale(1.2); opacity: 1; } 50% { transform: translateY(-40px) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(0.9); opacity: 0; } }
         @keyframes glowPulse { from { background: rgba(255, 255, 255, 0.5); box-shadow: 0 0 10px rgba(255,255,255,0.3); } to { background: rgba(255, 255, 255, 0.95); box-shadow: 0 0 20px rgba(255,255,255,0.8); } }
         @keyframes pulseRed { from { transform: scale(1); text-shadow: 0 0 10px #FF0055; } to { transform: scale(1.1); text-shadow: 0 0 20px #FF0055, 0 0 30px #FF0055; } }
 
@@ -61,40 +61,42 @@
 
         /* FULL-SCREEN PLAY AREA */
         #play-area {
-            display: flex; flex-direction: row; align-items: stretch; justify-content: space-between; gap: 3vw;
-            width: 100%; flex: 1; min-height: 0; padding: 0 3vw 3vw 3vw; box-sizing: border-box;
+            display: flex; flex-direction: row; align-items: stretch; justify-content: center; gap: 2vw;
+            width: 100%; flex: 1; min-height: 0; padding: 0 2vw 2vw 2vw; box-sizing: border-box;
+        }
+
+        .center-column {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;
         }
 
         #play-grid { 
-            position: relative; /* CRITICAL for centering score */
+            position: relative; 
             display: flex; flex-wrap: wrap; align-content: flex-start;
             width: 600px; height: 600px; max-width: 55vw; max-height: 55vw;
             background: rgba(0, 0, 0, 0.45); padding: 12px; border-radius: 24px; box-sizing: border-box; 
-            justify-content: center; border: 2px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); flex-shrink: 0;
-            margin: auto 0;
-        }
-        
-        /* CENTERED SCORE STYLES */
-        #score-display { 
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            font-size: 140px; /* Big and bold */
-            font-weight: 900; 
-            color: rgba(255, 255, 255, 0.15); /* See-through */
-            pointer-events: none; /* Let blocks pass through */
-            z-index: 5;
+            justify-content: center; border: 2px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); 
             margin: 0;
-            text-shadow: none; /* Removed heavy shadow for clean background look */
         }
         
+        /* SCORE STYLES */
+        #score-display { 
+            font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+            font-size: 54px; 
+            font-weight: 900; 
+            color: #fff; 
+            text-shadow: 0 4px 15px rgba(0,0,0,0.4); 
+            margin-bottom: 15px;
+            z-index: 5;
+        }
+        
+        /* UPDATED TO CIRCLES */
         .block-cell { 
             width: calc(10% - 2px); height: calc(10% - 2px); margin: 1px; background: rgba(0, 0, 0, 0.35); 
-            border-radius: 8px; pointer-events: none; box-sizing: border-box; transition: all 0.15s ease; border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 50%; /* Perfect circle */
+            pointer-events: none; box-sizing: border-box; transition: all 0.15s ease; border: 1px solid rgba(255, 255, 255, 0.05); 
         }
         .block-cell.active { border: none; z-index: 2; position: relative; }
-        .block-cell.snap-hint { animation: glowPulse 0.4s infinite alternate; border-radius: 6px; border: 2px solid #fff; transform: scale(1.05); z-index: 10; }
+        .block-cell.snap-hint { animation: glowPulse 0.4s infinite alternate; border: 2px solid #fff; transform: scale(1.05); z-index: 10; }
 
         /* DOCKS */
         .side-dock-wrapper {
@@ -102,22 +104,26 @@
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             background: rgba(0,0,0,0.3); box-shadow: inset 0 10px 30px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.2);
             border-radius: 24px; padding: 20px; box-sizing: border-box;
-            border: 1px solid rgba(255,255,255,0.05); overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.05); 
+            overflow-y: auto; touch-action: pan-y;
+            max-width: 250px;
         }
+
+        .side-dock-wrapper::-webkit-scrollbar { width: 0px; background: transparent; }
 
         .dock-title {
             color: rgba(255,255,255,0.4); font-size: 16px; font-weight: 900; letter-spacing: 4px; 
             margin-bottom: 20px; text-align: center; width: 100%; border-bottom: 2px dashed rgba(255,255,255,0.1); padding-bottom: 10px;
         }
 
-        #reward-dock { 
-            display: none; flex-direction: column; align-items: center; gap: 15px; width: 100%;
-            background: rgba(255, 215, 0, 0.15); border: 2px dashed rgba(255, 215, 0, 0.8); 
-            padding: 15px; border-radius: 16px; box-sizing: border-box;
-        }
-
         #dock {
             display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%;
+        }
+
+        #reserve-dock {
+            display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; min-height: 120px; border: 2px dashed rgba(255,255,255,0.2); border-radius: 16px;
+            background: rgba(0,0,0,0.2); transition: background 0.2s ease; padding: 10px; box-sizing: border-box;
         }
         
         .shape-wrapper { position: relative; cursor: grab; padding: 10px; touch-action: none; transition: transform 0.2s, filter 0.3s, opacity 0.3s; }
@@ -125,17 +131,44 @@
         .shape-layout { display: flex; flex-direction: column; align-items: center; pointer-events: none; }
         .shape-row { display: flex; }
         
+        /* UPDATED TO CIRCLES */
         .shape-dot { 
-            width: 28px; height: 28px; 
-            margin: 1px; border-radius: 6px; border: 1px solid transparent; flex-shrink: 0; 
+            width: 28px; height: 28px;
+            margin: 1px; border-radius: 50%; /* Perfect circle */
+            border: 1px solid transparent; flex-shrink: 0; box-sizing: border-box;
         }
         .shape-dot.filled { border: 1px solid rgba(255,255,255,0.8); box-shadow: inset 2px 2px 5px rgba(255,255,255,0.8), 0 4px 8px rgba(0,0,0,0.2); pointer-events: auto; }
-        
-        .reward-mini .shape-dot { width: 16px; height: 16px; margin: 1px; border-radius: 4px; }
-        .reward-badge { position: absolute; bottom: 0; right: 0; background: #FF0055; color: #fff; border: 2px solid #fff; border-radius: 50%; width: 24px; height: 24px; font-size: 13px; font-weight: 900; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.4); pointer-events: none; }
 
-        .floating { position: fixed; pointer-events: none; z-index: 9999; transform: scale(1.5); filter: drop-shadow(0 25px 20px rgba(0,0,0,0.4)); opacity: 0.95; transform-origin: top left; }
-        .floating-score { position: fixed; z-index: 10000; pointer-events: none; font-size: 36px; font-weight: 900; color: #fff; text-align: center; -webkit-text-stroke: 1px rgba(0,0,0,0.1); animation: bounceUpAndFade 1.2s forwards; }
+        /* BADGE CSS */
+        .inventory-badge {
+            position: absolute;
+            bottom: 0px;
+            right: 0px;
+            background: #FF0055;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 14px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .floating { position: fixed; pointer-events: none; z-index: 9999; transform: scale(1.5) !important; filter: drop-shadow(0 25px 20px rgba(0,0,0,0.4)); opacity: 0.95; transform-origin: top left; }
+        
+        .floating-score { 
+            position: fixed; z-index: 10000; pointer-events: none; 
+            font-family: 'Comic Sans MS', 'Comic Sans', cursive !important; 
+            font-weight: bold; color: #fff; text-align: center; 
+            text-shadow: 0px 3px 8px rgba(0,0,0,0.4), 0px 0px 8px currentColor; 
+            animation: bounceUpAndFade 1.2s forwards; 
+        }
 
         #records { background: #fff; padding: 20px; border-radius: 20px; margin: 15px 0; width: 100%; max-width: 350px; border: 2px solid rgba(0,0,0,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         #records h3 { margin: 0 0 15px 0; font-size: 22px; color: #BD00FF; }
@@ -144,23 +177,24 @@
 
         /* --- RESPONSIVE ORIENTATION (iPAD / iPHONE) --- */
         @media (orientation: portrait) {
-            #score-display { font-size: 100px; } /* Slightly smaller for portrait */
-            #play-area { flex-direction: column; align-items: center; justify-content: flex-start; gap: 10px; padding: 5px; }
-            #play-grid { order: 1; width: 96vw; height: 96vw; max-width: 600px; max-height: 600px; padding: 6px; border-radius: 16px; }
-            .side-dock-wrapper { order: 2; flex: none; width: 96vw; max-width: 600px; min-height: auto; padding: 10px; }
+            #score-display { font-size: 42px; margin-bottom: 5px; } 
+            #play-area { flex-direction: row; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 2vw; padding: 5px; overflow-y: auto; }
+            .center-column { order: 1; width: 100%; }
+            #play-grid { width: 96vw; height: 96vw; max-width: 600px; max-height: 600px; padding: 6px; border-radius: 16px; }
+            
+            .side-dock-wrapper.reserve-area { order: 2; width: 46vw; min-height: 150px; padding: 10px; }
+            .side-dock-wrapper.active-area { order: 3; width: 46vw; min-height: 150px; padding: 10px; }
+            
             .dock-title { margin-bottom: 10px; padding-bottom: 5px; font-size: 14px; }
-            #dock, #reward-dock { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px; }
-            .shape-dot { width: min(6.5vw, 24px); height: min(6.5vw, 24px); }
+            #dock { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px; }
             .shape-wrapper { padding: 5px; }
-            .reserve-area { order: 0; } 
         }
 
         @media (orientation: landscape) {
             #timer-container { position: absolute; top: 10px; right: 20px; width: 150px; z-index: 10;}
             #play-area { flex-direction: row; align-items: center; justify-content: center; gap: 2vw; padding: 10px; height: 100%; }
             #play-grid { width: 85vh; height: 85vh; max-width: 600px; max-height: 600px; padding: 8px; margin: 0; }
-            .side-dock-wrapper { flex: 1; max-width: 250px; height: 85vh; padding: 10px; justify-content: flex-start; }
-            .shape-dot { width: min(3vh, 24px); height: min(3vh, 24px); }
+            .side-dock-wrapper { flex: 1; height: 85vh; padding: 10px; justify-content: flex-start; }
         }
     </style>
 </head>
@@ -181,13 +215,14 @@
     <div id="timer-container"><div id="timer-display">10.0s</div><div id="timer-bar-bg"><div id="timer-bar-fill"></div></div></div>
     
     <div id="play-area">
-        <div class="side-dock-wrapper reserve-area" style="display: none;">
-            <div class="dock-title">RESERVE STASH</div>
-            <div id="reward-dock"></div>
+        <div class="side-dock-wrapper reserve-area">
+            <div class="dock-title">INVENTORY</div>
+            <div id="reserve-dock"></div>
         </div>
-        
-        <div id="play-grid">
+
+        <div class="center-column">
             <div id="score-display">0</div>
+            <div id="play-grid"></div>
         </div>
         
         <div class="side-dock-wrapper active-area">
@@ -209,12 +244,17 @@
 
 <script>
     document.addEventListener('touchmove', function(e) {
-        if (e.target.closest('body')) { e.preventDefault(); }
+        if (e.target.closest('.side-dock-wrapper')) return; 
+        if (e.target.closest('body')) e.preventDefault(); 
     }, { passive: false });
+
+    function triggerHaptic(pattern) {
+        if (navigator.vibrate) navigator.vibrate(pattern);
+    }
 
     const playGrid = document.getElementById("play-grid");
     const dockEl = document.getElementById("dock");
-    const rewardDockEl = document.getElementById("reward-dock");
+    const reserveDock = document.getElementById("reserve-dock");
     const scoreText = document.getElementById("score-display");
     const timerContainer = document.getElementById("timer-container");
     const timerDisplay = document.getElementById("timer-display");
@@ -226,6 +266,7 @@
     let boardState = Array(100).fill(null);
     let currentScore = 0;
     let activeShapes = []; 
+    let reserveInventory = []; 
     let activePopups = 0; 
     let continuesLeft = 3; 
     let currentMode = 'classic';
@@ -233,9 +274,7 @@
     let bestScores = [0, 0, 0, 0, 0];
 
     const candyColors = ["#FF0055", "#FF8800", "#FFEA00", "#00FF66", "#00DDFF", "#BD00FF", "#FF00AA"];
-    const hypeWords = ["Nice!", "Awesome!", "Epic!", "Superb!", "Boom!", "Wow!"]; // Hype words!
     
-    // Fill play grid elements, excluding the score text.
     for (let i = 0; i < 100; i++) {
         const cell = document.createElement("div");
         cell.className = "block-cell";
@@ -252,6 +291,7 @@
     ];
 
     window.startGame = function(mode) {
+        triggerHaptic(30);
         currentMode = mode; continuesLeft = 3; gameActive = true;
         document.getElementById("start-screen").style.display = "none";
         document.getElementById("end-screen").style.display = "none";
@@ -276,79 +316,64 @@
         }
     }
 
-    function spawnFloatingText(text, targetEl, isSpecial = false) {
+    function spawnFloatingText(text, totalLines, targetEl) {
         const popup = document.createElement("div");
         popup.className = "floating-score";
         popup.innerHTML = text; 
-        if(isSpecial) {
-            popup.style.color = "#FFEA00";
-            popup.style.textShadow = "0 0 20px #FF0055, 0 0 40px #FF0055";
-            popup.style.fontSize = "50px";
-            popup.style.zIndex = "10001";
-        } else {
-            popup.style.color = candyColors[Math.floor(Math.random() * candyColors.length)];
-        }
+        
+        let color = "#00FF66"; 
+        let size = "36px";
+        
+        if (totalLines === 1) { color = "#00FF66"; size = "36px"; }
+        else if (totalLines === 2) { color = "#00DDFF"; size = "42px"; }
+        else if (totalLines === 3) { color = "#BD00FF"; size = "48px"; }
+        else if (totalLines === 4) { color = "#FFEA00"; size = "56px"; popup.style.zIndex = "10001"; }
+        else if (totalLines >= 5) { color = "#FF0055"; size = "64px"; popup.style.zIndex = "10001"; }
+
+        popup.style.color = color;
+        popup.style.fontSize = size;
         
         const rect = targetEl.getBoundingClientRect();
-        popup.style.left = (rect.left + rect.width / 2 - (isSpecial ? 80 : 40)) + "px";
-        popup.style.top = (rect.top + rect.height / 2 - (activePopups * 35)) + "px";
+        popup.style.left = (rect.left + rect.width / 2 - 60) + "px";
+        popup.style.top = (rect.top + rect.height / 2 - (activePopups * 40)) + "px";
+        
         document.body.appendChild(popup);
         activePopups++; setTimeout(() => activePopups--, 1200); setTimeout(() => popup.remove(), 1200);
     }
 
-    function fillDock(forceMini = false) {
-        dockEl.innerHTML = "";
-        activeShapes = activeShapes.filter(s => s !== null && s.isReward && s.count > 0); 
-        const miniLayouts = [[[0,0]], [[0,0],[0,1]], [[0,0],[1,0]]];
-        const currentPool = forceMini ? miniLayouts : layouts;
+    function renderReserve(bounceSignatures = []) {
+        reserveDock.innerHTML = "";
+        reserveInventory.forEach(item => {
+            buildDraggableShape(item, reserveDock);
+            if (bounceSignatures.includes(item.signature) && item.element) {
+                item.element.classList.add("shake");
+            }
+        });
+    }
 
-        let playablePool = currentPool.filter(layout => findAllValidSpots(layout).length > 0);
-        let newShapesToAdd = [];
+    function refreshActiveDock() {
+        dockEl.innerHTML = "";
+        activeShapes.forEach((s) => {
+            if (s !== null) buildDraggableShape(s, dockEl);
+        });
+        verifyMovesLeft();
+    }
+
+    function fillDock() {
+        activeShapes = []; 
+        let playablePool = layouts.filter(layout => findAllValidSpots(layout).length > 0);
 
         for (let i = 0; i < 3; i++) {
             let layout;
             if (i === 0 && playablePool.length > 0) {
                 layout = playablePool[Math.floor(Math.random() * playablePool.length)];
             } else {
-                layout = currentPool[Math.floor(Math.random() * currentPool.length)];
+                layout = layouts[Math.floor(Math.random() * layouts.length)];
             }
-            const shapeObj = {layout: layout, color: candyColors[Math.floor(Math.random()*candyColors.length)], element: null, isReward: false, count: 1};
-            newShapesToAdd.push(shapeObj);
+            const shapeObj = {layout: layout, color: candyColors[Math.floor(Math.random()*candyColors.length)], element: null, isReserve: false};
+            activeShapes.push(shapeObj); 
         }
-
-        newShapesToAdd.sort(() => Math.random() - 0.5); 
-        newShapesToAdd.forEach(shapeObj => { activeShapes.push(shapeObj); buildDraggableShape(shapeObj, dockEl); });
-        verifyMovesLeft();
-    }
-
-    function grantCustomReward(rowsCleared, colsCleared) {
-        let rawLayout = [];
-        let seen = new Set();
-        rowsCleared.forEach(r => { for(let c=0; c<10; c++) { let k = r+","+c; if(!seen.has(k)) { seen.add(k); rawLayout.push([r,c]); } } });
-        colsCleared.forEach(c => { for(let r=0; r<10; r++) { let k = r+","+c; if(!seen.has(k)) { seen.add(k); rawLayout.push([r,c]); } } });
-        
-        if (rawLayout.length === 0) return;
-
-        let minR = Math.min(...rawLayout.map(p=>p[0]));
-        let minC = Math.min(...rawLayout.map(p=>p[1]));
-        let normalizedLayout = rawLayout.map(p => [p[0]-minR, p[1]-minC]);
-        
-        let typeId = `combo_r${rowsCleared.join('')}_c${colsCleared.join('')}`;
-        let existing = activeShapes.find(s => s && s.isReward && s.typeId === typeId);
-
-        spawnFloatingText("FUSION BLOCK!", rewardDockEl);
-        rewardDockEl.style.display = "flex";
-        document.querySelector('.reserve-area').style.display = 'flex';
-
-        if (existing) {
-            existing.count++;
-            if (existing.badgeElement) existing.badgeElement.innerText = existing.count;
-            verifyMovesLeft(); return;
-        }
-
-        const shapeObj = {layout: normalizedLayout, color: "#00FF66", element: null, isReward: true, typeId: typeId, count: 1};
-        activeShapes.push(shapeObj); buildDraggableShape(shapeObj, rewardDockEl);
-        verifyMovesLeft();
+        refreshActiveDock();
     }
 
     function findSmartestSpot(shapeObj) {
@@ -358,23 +383,31 @@
 
         for (let spot of validSpots) {
             let score = 0;
-            
             shapeObj.layout.forEach(pt => { boardState[(spot.r+pt[0])*10 + (spot.c+pt[1])] = 'temp'; });
             
-            let lines = 0;
-            for(let r=0; r<10; r++) if ([...Array(10)].every((_,c) => boardState[r*10+c])) lines++;
-            for(let c=0; c<10; c++) if ([...Array(10)].every((_,r) => boardState[r*10+c])) lines++;
-            if ([...Array(10)].every((_,i) => boardState[i*10+i])) lines++;
-            if ([...Array(10)].every((_,i) => boardState[i*10+(9-i)])) lines++;
-            score += lines * 1000;
+            let rowsCleared = 0, colsCleared = 0, diagsCleared = 0;
+            for(let r=0; r<10; r++) if ([...Array(10)].every((_,c) => boardState[r*10+c])) rowsCleared++;
+            for(let c=0; c<10; c++) if ([...Array(10)].every((_,r) => boardState[r*10+c])) colsCleared++;
+            if ([...Array(10)].every((_,i) => boardState[i*10+i])) diagsCleared++;
+            if ([...Array(10)].every((_,i) => boardState[i*10+(9-i)])) diagsCleared++;
+            
+            let totalLines = rowsCleared + colsCleared + diagsCleared;
+            score += totalLines * 10000;
+            if (totalLines > 1) score += Math.pow(totalLines, 2) * 2000; 
 
             shapeObj.layout.forEach(pt => {
                 let r = spot.r + pt[0]; let c = spot.c + pt[1];
-                if (r === 0 || (boardState[(r-1)*10+c] && boardState[(r-1)*10+c] !== 'temp')) score += 1;
-                if (r === 9 || (boardState[(r+1)*10+c] && boardState[(r+1)*10+c] !== 'temp')) score += 1;
-                if (c === 0 || (boardState[r*10+(c-1)] && boardState[r*10+(c-1)] !== 'temp')) score += 1;
-                if (c === 9 || (boardState[r*10+(c+1)] && boardState[r*10+(c+1)] !== 'temp')) score += 1;
+                if (r === 0 || (boardState[(r-1)*10+c] && boardState[(r-1)*10+c] !== 'temp')) score += 20;
+                if (r === 9 || (boardState[(r+1)*10+c] && boardState[(r+1)*10+c] !== 'temp')) score += 20;
+                if (c === 0 || (boardState[r*10+(c-1)] && boardState[r*10+(c-1)] !== 'temp')) score += 20;
+                if (c === 9 || (boardState[r*10+(c+1)] && boardState[r*10+(c+1)] !== 'temp')) score += 20;
             });
+
+            if (totalLines === 0) {
+                let centerDistR = Math.abs(spot.r + shapeObj.layout[0][0] - 4.5);
+                let centerDistC = Math.abs(spot.c + shapeObj.layout[0][1] - 4.5);
+                score += (centerDistR + centerDistC) * 5; 
+            }
 
             shapeObj.layout.forEach(pt => { boardState[(spot.r+pt[0])*10 + (spot.c+pt[1])] = null; });
 
@@ -384,19 +417,31 @@
     }
 
     function consumeShapeAndCheckState(shapeObj, wrap) {
-        if (shapeObj.isReward) {
-            shapeObj.count--;
-            if (shapeObj.count > 0) { shapeObj.badgeElement.innerText = shapeObj.count; wrap.style.opacity = "1"; } 
-            else { let idx = activeShapes.indexOf(shapeObj); if (idx > -1) activeShapes[idx] = null; wrap.remove(); }
+        if (shapeObj.isReserve) {
+            // Deduct from inventory stack
+            let invItem = reserveInventory.find(i => i.signature === shapeObj.signature);
+            if (invItem) {
+                invItem.count--;
+                if (invItem.count <= 0) {
+                    reserveInventory = reserveInventory.filter(i => i.signature !== shapeObj.signature);
+                }
+            }
+            renderReserve();
         } else {
-            let idx = activeShapes.indexOf(shapeObj); if (idx > -1) activeShapes[idx] = null; wrap.remove();
+            // Regular play piece: instantly replace it so there are always 3!
+            let idx = activeShapes.indexOf(shapeObj); 
+            if (idx > -1) {
+                let playablePool = layouts.filter(layout => findAllValidSpots(layout).length > 0);
+                let layout = playablePool.length > 0 
+                    ? playablePool[Math.floor(Math.random() * playablePool.length)] 
+                    : layouts[Math.floor(Math.random() * layouts.length)];
+                
+                activeShapes[idx] = {layout: layout, color: candyColors[Math.floor(Math.random()*candyColors.length)], element: null, isReserve: false};
+            }
+            refreshActiveDock();
         }
-
-        if (!activeShapes.some(s => s && s.isReward && s.count > 0)) {
-            rewardDockEl.style.display = "none";
-            document.querySelector('.reserve-area').style.display = 'none';
-        }
-        if (!activeShapes.some(s => s && !s.isReward)) fillDock(); else verifyMovesLeft();
+        
+        verifyMovesLeft();
         if (currentMode === 'rush') { timeRemaining = 10.0; lastTime = 0; rushTimer = requestAnimationFrame(gameLoop); }
     }
 
@@ -404,14 +449,6 @@
         const hoverPos = locateGridIndex(clientX, clientY);
         const validSpots = findAllValidSpots(shapeObj.layout);
         if (validSpots.length === 0) return null;
-
-        if (shapeObj.isReward && hoverPos !== null) {
-            let r = Math.floor(hoverPos/10), c = hoverPos%10;
-            if (shapeObj.typeId && shapeObj.typeId.startsWith('combo')) { 
-                if(hasRoom(shapeObj.layout, r - shapeObj.dragOffsetR, c - shapeObj.dragOffsetC)) 
-                    return {r: r - shapeObj.dragOffsetR, c: c - shapeObj.dragOffsetC}; 
-            }
-        }
 
         if (hoverPos !== null) {
             const r = Math.floor(hoverPos/10) - shapeObj.dragOffsetR;
@@ -436,11 +473,14 @@
     }
 
     function buildDraggableShape(shapeObj, containerEl) {
-        const wrap = document.createElement("div"); wrap.className = "shape-wrapper" + (shapeObj.isReward ? " reward-mini" : "");
+        const wrap = document.createElement("div"); wrap.className = "shape-wrapper";
         shapeObj.element = wrap;
         
         const gridBox = document.createElement("div"); gridBox.className = "shape-layout";
         let rMax = Math.max(...shapeObj.layout.map(p=>p[0])), cMax = Math.max(...shapeObj.layout.map(p=>p[1]));
+
+        let isGiant = rMax > 4 || cMax > 4;
+        let dSize = 28; 
 
         for (let r=0; r<=rMax; r++) {
             const rDiv = document.createElement("div"); rDiv.className = "shape-row";
@@ -448,67 +488,67 @@
                 const dot = document.createElement("div");
                 let isOn = shapeObj.layout.some(pt => pt[0]===r && pt[1]===c);
                 dot.className = isOn ? "shape-dot filled" : "shape-dot blank";
+                
                 if(isOn) { dot.style.background = shapeObj.color; dot.dataset.r = r; dot.dataset.c = c; }
                 rDiv.appendChild(dot);
             }
             gridBox.appendChild(rDiv);
         }
+
+        // Apply visual scaling to giant blocks so they fit the inventory neatly
+        if (isGiant) {
+            gridBox.style.transform = "scale(0.35)";
+            gridBox.style.transformOrigin = "center";
+            wrap.style.width = ((cMax+1) * 30 * 0.35) + "px";
+            wrap.style.height = ((rMax+1) * 30 * 0.35) + "px";
+            wrap.style.display = "flex"; wrap.style.alignItems = "center"; wrap.style.justifyContent = "center";
+        }
+
         wrap.appendChild(gridBox);
 
-        if (shapeObj.isReward) {
-            const badge = document.createElement("div"); badge.className = "reward-badge"; badge.innerText = shapeObj.count;
-            wrap.appendChild(badge); shapeObj.badgeElement = badge;
+        // Add the badge if we have multiples stacked
+        if (shapeObj.count && shapeObj.count > 1) {
+            let badge = document.createElement("div");
+            badge.className = "inventory-badge";
+            badge.innerText = shapeObj.count;
+            wrap.appendChild(badge);
         }
+
         containerEl.appendChild(wrap);
 
         wrap.onpointerdown = (e) => {
-            if (!gameActive) return;
+            if (!gameActive || wrap.dataset.dragging === "true") return;
+            wrap.dataset.dragging = "true"; 
+            triggerHaptic(15); 
+
             e.preventDefault(); 
-            
-            let startX = e.clientX; 
-            let startY = e.clientY;
-            let startTime = Date.now();
-            let isSwipingDown = false;
+            let startX = e.clientX; let startY = e.clientY; let startTime = Date.now(); 
 
             let grabR = shapeObj.layout[0][0], grabC = shapeObj.layout[0][1];
             if (e.target.classList.contains('filled')) { grabR = parseInt(e.target.dataset.r); grabC = parseInt(e.target.dataset.c); }
             shapeObj.dragOffsetR = grabR; shapeObj.dragOffsetC = grabC; 
 
-            const ghost = wrap.cloneNode(true); ghost.classList.remove("reward-mini"); ghost.classList.add("floating");
-            const ghostBadge = ghost.querySelector('.reward-badge'); if (ghostBadge) ghostBadge.remove();
+            // Clone for floating. Remove mini-scale so it's actual size when holding it
+            const ghost = wrap.cloneNode(true); ghost.classList.add("floating");
+            if (isGiant) {
+                ghost.querySelector('.shape-layout').style.transform = "scale(1)";
+                ghost.style.width = "auto"; ghost.style.height = "auto";
+            }
+            
+            let ghostBadge = ghost.querySelector('.inventory-badge');
+            if (ghostBadge) ghostBadge.style.display = 'none';
+
             document.body.appendChild(ghost); wrap.style.opacity = "0.05";
             
-            const dotSize = 28; const scale = 1.5;
-            const originX = (10 + grabC * dotSize + dotSize/2) * scale;
-            const originY = (10 + grabR * dotSize + dotSize/2) * scale;
+            const scale = 1.5; 
+            const originX = (10 + grabC * dSize + dSize/2) * scale;
+            const originY = (10 + grabR * dSize + dSize/2) * scale;
 
             const move = (ev) => {
-                let dx = ev.clientX - startX;
-                let dy = ev.clientY - startY;
-
-                if (!isSwipingDown && dy > 30 && Math.abs(dx) < 20 && (Date.now() - startTime) < 400) {
-                    isSwipingDown = true;
-                    window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", drop);
-                    
-                    let bestSpot = findSmartestSpot(shapeObj);
-                    if (bestSpot) {
-                        lockInShape(shapeObj, bestSpot.r, bestSpot.c);
-                        consumeShapeAndCheckState(shapeObj, wrap);
-                    } else {
-                        wrap.style.opacity = "1";
-                    }
-                    wipeHints(); ghost.remove();
-                    return;
-                }
-
-                let newX = ev.clientX - originX;
-                let newY = ev.clientY - originY;
-                
+                let newX = ev.clientX - originX; let newY = ev.clientY - originY;
                 newX = Math.max(0, Math.min(newX, window.innerWidth - ghost.offsetWidth));
                 newY = Math.max(0, Math.min(newY, window.innerHeight - ghost.offsetHeight));
-
-                ghost.style.left = newX + "px"; 
-                ghost.style.top = newY + "px"; 
+                ghost.style.left = newX + "px"; ghost.style.top = newY + "px"; 
                 
                 wipeHints();
                 const targetPos = getBestDropPos(shapeObj, ev.clientX, ev.clientY, false);
@@ -516,28 +556,39 @@
             };
 
             const drop = (ev) => {
+                wrap.dataset.dragging = "false";
                 window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", drop);
-                const targetPos = getBestDropPos(shapeObj, ev.clientX, ev.clientY, true);
+                
+                let dx = ev.clientX - startX; let dy = ev.clientY - startY;
+                let isTap = Math.abs(dx) < 10 && Math.abs(dy) < 10 && (Date.now() - startTime) < 300;
 
-                if (targetPos) {
-                    lockInShape(shapeObj, targetPos.r, targetPos.c);
-                    consumeShapeAndCheckState(shapeObj, wrap);
-                } else { 
-                    wrap.style.opacity = "1"; 
+                if (isTap) {
+                    let bestSpot = findSmartestSpot(shapeObj);
+                    if (bestSpot) {
+                        lockInShape(shapeObj, bestSpot.r, bestSpot.c);
+                        consumeShapeAndCheckState(shapeObj, wrap);
+                    } else { wrap.style.opacity = "1"; }
+                } else {
+                    const targetPos = getBestDropPos(shapeObj, ev.clientX, ev.clientY, true);
+                    if (targetPos) { 
+                        lockInShape(shapeObj, targetPos.r, targetPos.c); 
+                        consumeShapeAndCheckState(shapeObj, wrap);
+                    } else { wrap.style.opacity = "1"; }
                 }
-                wipeHints(); ghost.remove(); verifyMovesLeft(); 
+                
+                wipeHints(); ghost.remove(); 
+                if (!shapeObj.isReserve && activeShapes.some(s => s !== null)) verifyMovesLeft(); 
             };
             window.addEventListener("pointermove", move); window.addEventListener("pointerup", drop);
         };
     }
 
     function locateGridIndex(x, y) {
-        // Offset by 1 because the score is the first child of playGrid
         const tiles = playGrid.children;
-        for (let i = 1; i <= 100; i++) {
+        for (let i = 0; i < 100; i++) {
             if (!tiles[i]) continue;
             const b = tiles[i].getBoundingClientRect();
-            if (x >= b.left && x <= b.right && y >= b.top && y <= b.bottom) return i - 1; 
+            if (x >= b.left && x <= b.right && y >= b.top && y <= b.bottom) return i; 
         }
         return null;
     }
@@ -555,22 +606,40 @@
     function lockInShape(shapeObj, startR, startC) {
         snapSound.currentTime = 0; 
         snapSound.play().catch(e => console.log("User interaction required for audio."));
-        if (navigator.vibrate) { navigator.vibrate(50); }
+        triggerHaptic(50); 
 
         shapeObj.layout.forEach(pt => {
             let i = (startR+pt[0])*10 + (startC+pt[1]);
             boardState[i] = shapeObj.color; 
-            // Offset by +1 to skip the score display element
-            playGrid.children[i + 1].classList.add("active");
-            playGrid.children[i + 1].style.background = shapeObj.color;
-            playGrid.children[i + 1].style.boxShadow = `inset 2px 2px 8px rgba(255,255,255,0.7), inset -2px -2px 8px rgba(0,0,0,0.1), 0 2px 5px rgba(0,0,0,0.1)`;
+            playGrid.children[i].classList.add("active");
+            playGrid.children[i].style.background = shapeObj.color;
+            playGrid.children[i].style.boxShadow = `inset 2px 2px 8px rgba(255,255,255,0.7), inset -2px -2px 8px rgba(0,0,0,0.1), 0 2px 5px rgba(0,0,0,0.1)`;
         });
         currentScore += shapeObj.layout.length * 10; scoreText.innerText = currentScore;
-        checkClears(shapeObj.isReward);
+        checkClears();
     }
 
-    // --- REPAIRED CHECK CLEARS & HYPE POPUPS ---
-    function checkClears(isRewardBlock) {
+    let recentlyUpdatedSignatures = [];
+
+    function addRewardToInventory(layoutArray) {
+        let signature = JSON.stringify(layoutArray);
+        let existingItem = reserveInventory.find(item => item.signature === signature);
+        
+        if (existingItem) {
+            existingItem.count++;
+        } else {
+            reserveInventory.push({
+                layout: layoutArray,
+                color: candyColors[Math.floor(Math.random()*candyColors.length)],
+                isReserve: true,
+                signature: signature,
+                count: 1
+            });
+        }
+        recentlyUpdatedSignatures.push(signature);
+    }
+
+    function checkClears() {
         let fullRows = [], fullCols = [], diags = [];
         for(let r=0; r<10; r++) { if ([...Array(10)].every((_,c) => boardState[r*10+c])) fullRows.push(r); }
         for(let c=0; c<10; c++) { if ([...Array(10)].every((_,r) => boardState[r*10+c])) fullCols.push(c); }
@@ -580,105 +649,141 @@
         const totalLines = fullRows.length + fullCols.length + diags.length;
         
         if (totalLines > 0) {
+            recentlyUpdatedSignatures = []; // Reset bounce list
+            
+            triggerHaptic([50, 50, 50]); 
             gameBoard.classList.remove("shake"); void gameBoard.offsetWidth; gameBoard.classList.add("shake");
             let pts = totalLines * 1000; currentScore += pts; scoreText.innerText = currentScore;
             
-            // HYPE POPUPS TRIGGER
-            if (totalLines >= 10) {
-                spawnFloatingText("ZXYlevel!", playGrid, true);
-            } else {
-                const randomWord = hypeWords[Math.floor(Math.random() * hypeWords.length)];
-                spawnFloatingText(randomWord, playGrid, true);
-            }
+            let word = "";
+            if (totalLines === 1) word = "Nice!";
+            else if (totalLines === 2) word = "Awesome!";
+            else if (totalLines === 3) word = "Epic!";
+            else if (totalLines === 4) word = "Legendary!";
+            else if (totalLines >= 5 && totalLines < 10) word = "Unreal!";
+            else if (totalLines >= 10) word = "Unreal.+";
+
+            spawnFloatingText(word, totalLines, playGrid);
             
-            // Remove the blocks
+            // Loop through every line cleared and add it to the inventory stack
+            fullRows.forEach(() => addRewardToInventory(Array.from({length: 10}, (_, i) => [0, i])));
+            fullCols.forEach(() => addRewardToInventory(Array.from({length: 10}, (_, i) => [i, 0])));
+            if (diags.includes('diag1')) addRewardToInventory(Array.from({length: 10}, (_, i) => [i, i]));
+            if (diags.includes('diag2')) addRewardToInventory(Array.from({length: 10}, (_, i) => [i, 9 - i]));
+            
+            // Render the reserve and pass the new signatures so they bounce!
+            renderReserve(recentlyUpdatedSignatures);
+            
             let toClear = new Set();
             fullRows.forEach(r => { for(let c=0; c<10; c++) toClear.add(r*10+c); });
             fullCols.forEach(c => { for(let r=0; r<10; r++) toClear.add(r*10+c); });
-            if (diags.includes('diag1')) { for(let i=0; i<10; i++) toClear.add(i*10+i); }
-            if (diags.includes('diag2')) { for(let i=0; i<10; i++) toClear.add(i*10+(9-i)); }
+            if (diags.includes('diag1')) [...Array(10)].forEach((_,i) => toClear.add(i*10+i));
+            if (diags.includes('diag2')) [...Array(10)].forEach((_,i) => toClear.add(i*10+(9-i)));
 
-            toClear.forEach(index => {
-                boardState[index] = null;
-                // Offset by +1 to skip the score display element
-                playGrid.children[index + 1].classList.remove("active");
-                playGrid.children[index + 1].style.background = "rgba(0, 0, 0, 0.35)";
-                playGrid.children[index + 1].style.boxShadow = "none";
-                playGrid.children[index + 1].style.border = "1px solid rgba(255, 255, 255, 0.05)";
+            toClear.forEach(idx => {
+                boardState[idx] = null;
+                if(playGrid.children[idx]) {
+                    playGrid.children[idx].classList.remove("active");
+                    playGrid.children[idx].style.background = "rgba(0, 0, 0, 0.35)";
+                    playGrid.children[idx].style.boxShadow = "none";
+                }
             });
-            
-            if (!isRewardBlock && (fullRows.length > 0 || fullCols.length > 0)) {
-                grantCustomReward(fullRows, fullCols);
-            }
         }
     }
 
-    // --- PLACEHOLDER FUNCTIONS ---
-    // Since your original code got cut off before these were defined, I added simple versions 
-    // so the game runs! Replace these with your actual functions if you have them.
-
     function wipeHints() {
-        const tiles = playGrid.children;
-        for (let i = 1; i <= 100; i++) {
-            if (tiles[i]) tiles[i].classList.remove("snap-hint");
+        for(let i=0; i<100; i++) {
+            if (playGrid.children[i]) playGrid.children[i].classList.remove("snap-hint");
         }
     }
 
     function drawHint(layout, startR, startC) {
         layout.forEach(pt => {
-            let i = (startR+pt[0])*10 + (startC+pt[1]);
-            if(playGrid.children[i + 1]) playGrid.children[i + 1].classList.add("snap-hint");
+            let idx = (startR+pt[0])*10 + (startC+pt[1]);
+            if(idx >= 0 && idx < 100) {
+                if (playGrid.children[idx]) playGrid.children[idx].classList.add("snap-hint");
+            }
         });
-    }
-
-    function verifyMovesLeft() {
-        const canMove = activeShapes.some(s => s && findAllValidSpots(s.layout).length > 0);
-        if (!canMove && activeShapes.some(s => s !== null)) {
-            triggerGameOver("NO MOVES LEFT!");
-        }
     }
 
     function wipeBoardClean() {
         boardState.fill(null);
         currentScore = 0;
-        scoreText.innerText = currentScore;
-        const tiles = playGrid.children;
-        for (let i = 1; i <= 100; i++) {
-            if (tiles[i]) {
-                tiles[i].classList.remove("active");
-                tiles[i].style.background = "rgba(0, 0, 0, 0.35)";
-                tiles[i].style.boxShadow = "none";
+        scoreText.innerText = "0";
+        for (let i = 0; i < 100; i++) {
+            if (playGrid.children[i]) {
+                playGrid.children[i].classList.remove("active");
+                playGrid.children[i].style.background = "rgba(0, 0, 0, 0.35)";
+                playGrid.children[i].style.boxShadow = "none";
             }
         }
         activeShapes = [];
+        reserveInventory = []; 
+        renderReserve();
         dockEl.innerHTML = "";
-        rewardDockEl.innerHTML = "";
-        rewardDockEl.style.display = "none";
-        document.querySelector('.reserve-area').style.display = 'none';
+        wipeHints();
+    }
+
+    function verifyMovesLeft() {
+        let canMove = false;
+        
+        for (let shape of activeShapes) {
+            if (shape && findAllValidSpots(shape.layout).length > 0) { canMove = true; break; }
+        }
+        
+        for (let item of reserveInventory) {
+            if (item && findAllValidSpots(item.layout).length > 0) { canMove = true; break; }
+        }
+
+        if (!canMove && activeShapes.some(s => s !== null)) {
+            setTimeout(() => triggerGameOver("NO MOVES LEFT!"), 300);
+        }
     }
 
     function triggerGameOver(reason) {
+        triggerHaptic([100, 50, 100, 50, 200]); 
         gameActive = false;
+        cancelAnimationFrame(rushTimer);
         document.getElementById("death-reason").innerText = reason;
         document.getElementById("final-tally").innerText = currentScore;
+        
+        bestScores.push(currentScore);
+        bestScores.sort((a,b)=>b-a);
+        bestScores = bestScores.slice(0,5);
+        const list = document.getElementById("records-list");
+        list.innerHTML = "";
+        bestScores.forEach((s, i) => {
+            if(s > 0) list.innerHTML += `<li><span>#${i+1}</span> <span>${s}</span></li>`;
+        });
+
+        const btnContinue = document.getElementById("btn-continue");
+        if (continuesLeft > 0) {
+            btnContinue.style.display = "inline-block";
+            btnContinue.innerText = `CONTINUE (${continuesLeft} LEFT)`;
+        } else {
+            btnContinue.style.display = "none";
+        }
+
         document.getElementById("game-board").style.display = "none";
         document.getElementById("end-screen").style.display = "flex";
     }
 
-    function useContinue() {
-        if (continuesLeft > 0) {
-            continuesLeft--;
-            document.getElementById("btn-continue").innerText = `CONTINUE (${continuesLeft} LEFT)`;
-            document.getElementById("end-screen").style.display = "none";
-            document.getElementById("game-board").style.display = "flex";
-            gameActive = true;
-            fillDock(true); // Fill with mini blocks to help them out
-            if (currentMode === 'rush') { timeRemaining = 10.0; lastTime = 0; rushTimer = requestAnimationFrame(gameLoop); }
-        } else {
-            alert("No continues left!");
+    window.useContinue = function() {
+        triggerHaptic(30);
+        if (continuesLeft <= 0) return;
+        continuesLeft--;
+        document.getElementById("end-screen").style.display = "none";
+        document.getElementById("game-board").style.display = "flex";
+        gameActive = true;
+        
+        fillDock(); 
+        
+        if (currentMode === 'rush') {
+            timeRemaining = 10.0;
+            lastTime = 0;
+            rushTimer = requestAnimationFrame(gameLoop);
         }
-    }
-
+    };
 </script>
 </body>
 </html>
