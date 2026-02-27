@@ -59,142 +59,125 @@
         .timer-danger { color: #FF0055 !important; animation: pulseRed 0.5s infinite alternate; }
         .bg-danger { background: #FF0055 !important; }
 
-        /* FULL-SCREEN PLAY AREA */
+        /* BASE PLAY AREA & DEFAULT STYLES */
         #play-area {
-            display: flex; flex-direction: row; align-items: stretch; justify-content: center; gap: 2vw;
-            width: 100%; flex: 1; min-height: 0; padding: 0 2vw 2vw 2vw; box-sizing: border-box;
+            display: flex; align-items: stretch; justify-content: center;
+            width: 100%; flex: 1; min-height: 0; box-sizing: border-box;
         }
-
-        .center-column {
-            display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;
-        }
+        
+        #score-display { font-family: 'Comic Sans MS', 'Comic Sans', cursive; font-size: 54px; font-weight: 900; color: #fff; text-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 5; text-align: center; }
+        .center-column { display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
         #play-grid { 
-            position: relative; 
-            display: flex; flex-wrap: wrap; align-content: flex-start;
-            width: 600px; height: 600px; max-width: 55vw; max-height: 55vw;
-            background: rgba(0, 0, 0, 0.45); padding: 12px; border-radius: 24px; box-sizing: border-box; 
+            position: relative; display: flex; flex-wrap: wrap; align-content: flex-start;
+            background: rgba(0, 0, 0, 0.45); border-radius: 24px; box-sizing: border-box; 
             justify-content: center; border: 2px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); 
-            margin: 0;
         }
         
-        /* SCORE STYLES */
-        #score-display { 
-            font-family: 'Comic Sans MS', 'Comic Sans', cursive;
-            font-size: 54px; 
-            font-weight: 900; 
-            color: #fff; 
-            text-shadow: 0 4px 15px rgba(0,0,0,0.4); 
-            margin-bottom: 15px;
-            z-index: 5;
-        }
-        
-        /* UPDATED TO CIRCLES */
         .block-cell { 
             width: calc(10% - 2px); height: calc(10% - 2px); margin: 1px; background: rgba(0, 0, 0, 0.35); 
-            border-radius: 50%; /* Perfect circle */
-            pointer-events: none; box-sizing: border-box; transition: all 0.15s ease; border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 50%; pointer-events: none; box-sizing: border-box; transition: all 0.15s ease; border: 1px solid rgba(255, 255, 255, 0.05); 
         }
         .block-cell.active { border: none; z-index: 2; position: relative; }
         .block-cell.snap-hint { animation: glowPulse 0.4s infinite alternate; border: 2px solid #fff; transform: scale(1.05); z-index: 10; }
 
-        /* DOCKS */
         .side-dock-wrapper {
-            flex: 1; 
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             background: rgba(0,0,0,0.3); box-shadow: inset 0 10px 30px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.2);
-            border-radius: 24px; padding: 20px; box-sizing: border-box;
-            border: 1px solid rgba(255,255,255,0.05); 
-            overflow-y: auto; touch-action: pan-y;
-            max-width: 250px;
+            border: 1px solid rgba(255,255,255,0.05); box-sizing: border-box; touch-action: pan-y;
         }
+        .side-dock-wrapper::-webkit-scrollbar { display: none; }
 
-        .side-dock-wrapper::-webkit-scrollbar { width: 0px; background: transparent; }
-
-        .dock-title {
-            color: rgba(255,255,255,0.4); font-size: 16px; font-weight: 900; letter-spacing: 4px; 
-            margin-bottom: 20px; text-align: center; width: 100%; border-bottom: 2px dashed rgba(255,255,255,0.1); padding-bottom: 10px;
-        }
-
-        #dock {
-            display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%;
-        }
-
-        #reserve-dock {
-            display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; min-height: 120px; border: 2px dashed rgba(255,255,255,0.2); border-radius: 16px;
-            background: rgba(0,0,0,0.2); transition: background 0.2s ease; padding: 10px; box-sizing: border-box;
-        }
+        .dock-title { color: rgba(255,255,255,0.5); font-weight: 900; text-align: center; }
+        #dock, #reserve-dock { display: flex; width: 100%; box-sizing: border-box; }
         
-        .shape-wrapper { position: relative; cursor: grab; padding: 10px; touch-action: none; transition: transform 0.2s, filter 0.3s, opacity 0.3s; }
-        .shape-wrapper:active { transform: scale(1.15); }
+        .shape-wrapper { position: relative; cursor: grab; touch-action: none; transition: transform 0.2s, filter 0.3s, opacity 0.3s; }
+        .shape-wrapper:active { filter: brightness(1.2); }
         .shape-layout { display: flex; flex-direction: column; align-items: center; pointer-events: none; }
         .shape-row { display: flex; }
         
-        /* UPDATED TO CIRCLES */
         .shape-dot { 
-            width: 28px; height: 28px;
-            margin: 1px; border-radius: 50%; /* Perfect circle */
+            width: 28px; height: 28px; margin: 1px; border-radius: 50%; 
             border: 1px solid transparent; flex-shrink: 0; box-sizing: border-box;
         }
         .shape-dot.filled { border: 1px solid rgba(255,255,255,0.8); box-shadow: inset 2px 2px 5px rgba(255,255,255,0.8), 0 4px 8px rgba(0,0,0,0.2); pointer-events: auto; }
 
-        /* BADGE CSS */
-        .inventory-badge {
-            position: absolute;
-            bottom: 0px;
-            right: 0px;
-            background: #FF0055;
-            color: white;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            font-size: 14px;
-            font-weight: 900;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        .floating { position: fixed; pointer-events: none; z-index: 9999; transform: scale(1.5) !important; filter: drop-shadow(0 25px 20px rgba(0,0,0,0.4)); opacity: 0.95; transform-origin: top left; }
+        .inventory-badge { position: absolute; bottom: 0px; right: 0px; background: #FF0055; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10; pointer-events: none; }
         
-        .floating-score { 
-            position: fixed; z-index: 10000; pointer-events: none; 
-            font-family: 'Comic Sans MS', 'Comic Sans', cursive !important; 
-            font-weight: bold; color: #fff; text-align: center; 
-            text-shadow: 0px 3px 8px rgba(0,0,0,0.4), 0px 0px 8px currentColor; 
-            animation: bounceUpAndFade 1.2s forwards; 
-        }
+        .floating { position: fixed; pointer-events: none; z-index: 9999; transform: scale(1.5) !important; filter: drop-shadow(0 25px 20px rgba(0,0,0,0.4)); opacity: 0.95; transform-origin: top left; }
+        .floating-score { position: fixed; z-index: 10000; pointer-events: none; font-family: 'Comic Sans MS', 'Comic Sans', cursive !important; font-weight: bold; color: #fff; text-align: center; text-shadow: 0px 3px 8px rgba(0,0,0,0.4), 0px 0px 8px currentColor; animation: bounceUpAndFade 1.2s forwards; }
 
         #records { background: #fff; padding: 20px; border-radius: 20px; margin: 15px 0; width: 100%; max-width: 350px; border: 2px solid rgba(0,0,0,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         #records h3 { margin: 0 0 15px 0; font-size: 22px; color: #BD00FF; }
         #records-list { list-style: none; padding: 0; margin: 0; font-size: 18px; font-weight: bold; color: #555; text-align: left; }
         #records-list li { display: flex; justify-content: space-between; border-bottom: 2px dashed rgba(0,0,0,0.1); padding: 10px 0; }
 
-        /* --- RESPONSIVE ORIENTATION (iPAD / iPHONE) --- */
-        @media (orientation: portrait) {
-            #score-display { font-size: 42px; margin-bottom: 5px; } 
-            #play-area { flex-direction: row; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 2vw; padding: 5px; overflow-y: auto; }
-            .center-column { order: 1; width: 100%; }
-            #play-grid { width: 96vw; height: 96vw; max-width: 600px; max-height: 600px; padding: 6px; border-radius: 16px; }
-            
-            .side-dock-wrapper.reserve-area { order: 2; width: 46vw; min-height: 150px; padding: 10px; }
-            .side-dock-wrapper.active-area { order: 3; width: 46vw; min-height: 150px; padding: 10px; }
-            
-            .dock-title { margin-bottom: 10px; padding-bottom: 5px; font-size: 14px; }
-            #dock { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px; }
-            .shape-wrapper { padding: 5px; }
+        /* =========================================
+           4-WAY RESPONSIVE LAYOUT ENGINE
+           ========================================= */
+
+        /* 1. TABLET LANDSCAPE & DESKTOP (Sideways - Default) */
+        @media (orientation: landscape) and (min-height: 601px) {
+            #timer-container { position: absolute; top: 10px; right: 20px; width: 150px; z-index: 10; }
+            #play-area { flex-direction: row; gap: 2vw; padding: 15px 30px; }
+            #score-display { margin-bottom: 15px; }
+            #play-grid { width: 80vh; height: 80vh; max-width: 650px; max-height: 650px; padding: 12px; }
+            .side-dock-wrapper { flex: 1; max-width: 280px; height: 80vh; padding: 20px; border-radius: 24px; overflow-y: auto; }
+            .dock-title { font-size: 16px; letter-spacing: 4px; margin-bottom: 20px; border-bottom: 2px dashed rgba(255,255,255,0.1); padding-bottom: 10px; }
+            #dock { flex-direction: column; align-items: center; gap: 20px; }
+            #reserve-dock { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 10px; border: 2px dashed rgba(255,255,255,0.2); border-radius: 16px; padding: 10px; background: rgba(0,0,0,0.2); }
+            .shape-wrapper { padding: 10px; }
+            .shape-wrapper:active { transform: scale(1.15); }
         }
 
-        @media (orientation: landscape) {
-            #timer-container { position: absolute; top: 10px; right: 20px; width: 150px; z-index: 10;}
-            #play-area { flex-direction: row; align-items: center; justify-content: center; gap: 2vw; padding: 10px; height: 100%; }
-            #play-grid { width: 85vh; height: 85vh; max-width: 600px; max-height: 600px; padding: 8px; margin: 0; }
-            .side-dock-wrapper { flex: 1; height: 85vh; padding: 10px; justify-content: flex-start; }
+        /* 2. PHONE LANDSCAPE (Sideways) */
+        @media (orientation: landscape) and (max-height: 600px) {
+            #score-display { font-size: 32px; position: absolute; top: 5px; left: 15px; z-index: 10; margin: 0; }
+            #timer-container { position: absolute; bottom: 10px; left: 15px; width: 120px; margin: 0; z-index: 10; }
+            #play-area { flex-direction: row; justify-content: space-between; gap: 1vw; padding: 5px 10px; }
+            .center-column { flex: 0 0 auto; justify-content: center; height: 100vh; }
+            #play-grid { width: 90vh; height: 90vh; padding: 6px; border-radius: 12px; }
+            .side-dock-wrapper { flex: 1; max-width: 25vw; height: 95vh; padding: 5px; border-radius: 16px; overflow-y: auto; }
+            .dock-title { font-size: 11px; margin-bottom: 5px; padding-bottom: 2px; letter-spacing: 2px; border-bottom: 1px dashed rgba(255,255,255,0.2); }
+            #dock { flex-direction: column; align-items: center; gap: 5px; }
+            #reserve-dock { flex-direction: column; align-items: center; gap: 5px; }
+            .shape-wrapper { padding: 2px; transform: scale(0.65); transform-origin: center; }
+            .shape-wrapper:active { transform: scale(0.8); }
+        }
+
+        /* 3. TABLET PORTRAIT (iPad Upright) */
+        @media (orientation: portrait) and (min-width: 768px) {
+            #score-display { font-size: 64px; margin-top: 20px; margin-bottom: 15px; }
+            #play-area { flex-direction: row; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 20px; padding: 20px; overflow-y: auto; }
+            .center-column { order: 1; width: 100%; flex: 0 0 auto; }
+            #play-grid { width: 80vw; height: 80vw; max-width: 650px; max-height: 650px; padding: 12px; margin: 0 auto; }
+            .side-dock-wrapper { padding: 20px; border-radius: 24px; }
+            .side-dock-wrapper.active-area { order: 2; width: calc(50% - 10px); max-width: 350px; min-height: 250px; flex-direction: column; }
+            .side-dock-wrapper.reserve-area { order: 3; width: calc(50% - 10px); max-width: 350px; min-height: 250px; flex-direction: column; }
+            .dock-title { font-size: 16px; letter-spacing: 4px; margin-bottom: 15px; border-bottom: 2px dashed rgba(255,255,255,0.1); padding-bottom: 10px; width: 100%; }
+            #dock, #reserve-dock { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 15px; }
+            .shape-wrapper { padding: 10px; }
+            .shape-wrapper:active { transform: scale(1.15); }
+        }
+
+        /* 4. PHONE PORTRAIT (Upright) */
+        @media (orientation: portrait) and (max-width: 767px) {
+            #score-display { font-size: 46px; margin-bottom: 10px; margin-top: 15px; }
+            #play-area { flex-direction: column; flex-wrap: nowrap; align-items: center; gap: 15px; padding: 10px; overflow-y: auto; overflow-x: hidden; }
+            .center-column { order: 1; width: 100%; flex: 0 0 auto; }
+            #play-grid { width: 94vw; height: 94vw; max-width: 450px; max-height: 450px; padding: 8px; border-radius: 16px; margin: 0 auto; }
+            
+            /* Horizontal Shelves for Mobile */
+            .side-dock-wrapper { flex: 0 0 auto; width: 94vw; max-width: 450px; padding: 12px; border-radius: 16px; justify-content: flex-start; }
+            .side-dock-wrapper.active-area { order: 2; min-height: 110px; }
+            .side-dock-wrapper.reserve-area { order: 3; min-height: 110px; margin-bottom: 20px; }
+            
+            .dock-title { font-size: 12px; margin-bottom: 5px; letter-spacing: 3px; border-bottom: none; text-align: left; margin-left: 5px; color: rgba(255,255,255,0.8); }
+            #dock, #reserve-dock { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; justify-content: flex-start; align-items: center; gap: 15px; padding-bottom: 5px; width: 100%; }
+            #dock::-webkit-scrollbar, #reserve-dock::-webkit-scrollbar { display: none; }
+            
+            .shape-wrapper { padding: 5px; flex-shrink: 0; transform: scale(0.9); }
+            .shape-wrapper:active { transform: scale(1); }
         }
     </style>
 </head>
@@ -418,7 +401,6 @@
 
     function consumeShapeAndCheckState(shapeObj, wrap) {
         if (shapeObj.isReserve) {
-            // Deduct from inventory stack
             let invItem = reserveInventory.find(i => i.signature === shapeObj.signature);
             if (invItem) {
                 invItem.count--;
@@ -428,7 +410,6 @@
             }
             renderReserve();
         } else {
-            // Regular play piece: instantly replace it so there are always 3!
             let idx = activeShapes.indexOf(shapeObj); 
             if (idx > -1) {
                 let playablePool = layouts.filter(layout => findAllValidSpots(layout).length > 0);
@@ -495,7 +476,6 @@
             gridBox.appendChild(rDiv);
         }
 
-        // Apply visual scaling to giant blocks so they fit the inventory neatly
         if (isGiant) {
             gridBox.style.transform = "scale(0.35)";
             gridBox.style.transformOrigin = "center";
@@ -506,7 +486,6 @@
 
         wrap.appendChild(gridBox);
 
-        // Add the badge if we have multiples stacked
         if (shapeObj.count && shapeObj.count > 1) {
             let badge = document.createElement("div");
             badge.className = "inventory-badge";
@@ -528,7 +507,6 @@
             if (e.target.classList.contains('filled')) { grabR = parseInt(e.target.dataset.r); grabC = parseInt(e.target.dataset.c); }
             shapeObj.dragOffsetR = grabR; shapeObj.dragOffsetC = grabC; 
 
-            // Clone for floating. Remove mini-scale so it's actual size when holding it
             const ghost = wrap.cloneNode(true); ghost.classList.add("floating");
             if (isGiant) {
                 ghost.querySelector('.shape-layout').style.transform = "scale(1)";
@@ -649,7 +627,7 @@
         const totalLines = fullRows.length + fullCols.length + diags.length;
         
         if (totalLines > 0) {
-            recentlyUpdatedSignatures = []; // Reset bounce list
+            recentlyUpdatedSignatures = []; 
             
             triggerHaptic([50, 50, 50]); 
             gameBoard.classList.remove("shake"); void gameBoard.offsetWidth; gameBoard.classList.add("shake");
@@ -664,21 +642,34 @@
             else if (totalLines >= 10) word = "Unreal.+";
 
             spawnFloatingText(word, totalLines, playGrid);
-            
-            // Loop through every line cleared and add it to the inventory stack
-            fullRows.forEach(() => addRewardToInventory(Array.from({length: 10}, (_, i) => [0, i])));
-            fullCols.forEach(() => addRewardToInventory(Array.from({length: 10}, (_, i) => [i, 0])));
-            if (diags.includes('diag1')) addRewardToInventory(Array.from({length: 10}, (_, i) => [i, i]));
-            if (diags.includes('diag2')) addRewardToInventory(Array.from({length: 10}, (_, i) => [i, 9 - i]));
-            
-            // Render the reserve and pass the new signatures so they bounce!
-            renderReserve(recentlyUpdatedSignatures);
-            
+
             let toClear = new Set();
             fullRows.forEach(r => { for(let c=0; c<10; c++) toClear.add(r*10+c); });
             fullCols.forEach(c => { for(let r=0; r<10; r++) toClear.add(r*10+c); });
             if (diags.includes('diag1')) [...Array(10)].forEach((_,i) => toClear.add(i*10+i));
             if (diags.includes('diag2')) [...Array(10)].forEach((_,i) => toClear.add(i*10+(9-i)));
+
+            if (toClear.size > 0) {
+                let giantLayout = [];
+                let minR = 10, minC = 10;
+                
+                toClear.forEach(idx => {
+                    let r = Math.floor(idx / 10);
+                    let c = idx % 10;
+                    if (r < minR) minR = r;
+                    if (c < minC) minC = c;
+                });
+                
+                toClear.forEach(idx => {
+                    let r = Math.floor(idx / 10);
+                    let c = idx % 10;
+                    giantLayout.push([r - minR, c - minC]);
+                });
+
+                addRewardToInventory(giantLayout);
+            }
+            
+            renderReserve(recentlyUpdatedSignatures);
 
             toClear.forEach(idx => {
                 boardState[idx] = null;
